@@ -8,14 +8,22 @@ import os
 
 from arg import *
 from load import *
+from padding import *
+from patches import * 
 
 def main():
 
 	# Reading the paths to fragment and mask 
 	fragment_path = read()
 
-	# Loading the fragment and mask as cv2 struct with flag 1 color and flag 0 gray-scale
+	# loading the fragment and mask as cv2 struct with flag 1 color and flag 0 gray-scale
 	fragment = load(fragment_path, 1)
+
+	# Padding the fragment to fit n by n patch dimension 
+	fragment = padding(fragment, 256)
+
+	# Extracting and saving n by n patches from the fragment 
+	patches(fragment)
 
 if __name__ == '__main__':
 	main()
