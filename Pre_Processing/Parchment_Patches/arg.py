@@ -2,6 +2,7 @@
 
 # Modules
 import sys
+import os 
 
 def read():
 	if len(sys.argv) != 2:
@@ -12,3 +13,4 @@ def read():
 	else:
 		fragment = sys.argv[1]
 	return fragment 	
+

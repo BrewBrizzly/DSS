@@ -19,9 +19,10 @@ def padding(fragment, n):
 		y_incr = abs(y_rem - n)
 
 		# Padding of the fragment on bottom and right 
-		return np.pad(fragment, (0, x_incr), (0, y_incr))
+		return np.pad(fragment, pad_width=[(0, x_incr), (0, y_incr), (0, 0)], mode='constant')
 
 	# If fragment already fits dimension
 	else:
+		print("Padded to fit patches")
 		return fragment
 

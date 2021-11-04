@@ -5,11 +5,12 @@ import cv2
 import os
 
 # files 
-
 from arg import *
 from load import *
 from padding import *
 from patches import * 
+
+# /Users/stephannijdam/Desktop/DSS/Pre_Processing/Parchment_Patches/test.jpg
 
 def main():
 
@@ -23,7 +24,7 @@ def main():
 	fragment = padding(fragment, 256)
 
 	# Extracting and saving n by n patches from the fragment 
-	patches(fragment)
+	# patches(fragment)
 
 if __name__ == '__main__':
 	main()
