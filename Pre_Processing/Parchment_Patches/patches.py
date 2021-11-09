@@ -14,7 +14,13 @@ def patches(fragment, directory, patch_number, n):
 	# Saving each patch by going through the collumns and rows of patches
 	for col in patches:
 		for row in col:
-			cv2.imwrite(directory + 'Test_Patches/patch_' +  str(patch_number) + '.jpg', row[0])
-			patch_number += 1
+                        
+                        # Reducing dimensionality 
+                        patch = row[0]
 
+                        # If patch does not contain only mask, then save
+                        if np.any(patch):
+                                cv2.imwrite(directory + 'Test_Patches/patch_' +  str(patch_number) + '.jpg', patch)
+                                patch_number += 1
+                        
 	return patch_number

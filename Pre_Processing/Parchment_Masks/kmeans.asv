@@ -23,7 +23,6 @@ Mask = imfill(BW,'holes');
 Res = bsxfun(@times, I_resized, cast(Mask, 'like', I_resized));
 
 % Saving the 50 percent downscaled combination of fragment and mask 
-imwrite(Res, 'test_fragment.jpg');
+imwrite(Res, 'mask_image.jpg');
 
 % Saving the mask 
-imwrite(Mask, 'test_mask.jpg')
