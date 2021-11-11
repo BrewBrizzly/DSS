@@ -1,15 +1,12 @@
 # Creating dir and copying content if leather fragment
 
 # Modules 
-import os, sys
-from distutils.dir_util import copy_tree 
+import os, sys, csv 
 
 # Creating the directories and copying content 
 def copy_content(source, dest, plate):
 	try:
-		os.makedirs(dest, exist_ok = True)
-		copy_tree(source + plate, dest)
-		print("Created and copied to Dir: " + plate)
+		os.system("rsync -avP " + source + plate + " " + dest)
 	except:
 		print("Dir is already present: " + plate)
 
@@ -19,27 +16,31 @@ def exception(obj):
 		obj = '623,626,630'
 	if obj == '629-621':
 		obj = '629,621'
+	if obj == '520.526':
+		obj = '520,526'
+	if obj == '520.526-1':
+		obj = '520,526-1'
 	return obj 
 
 # Downsizing dim of obj
 def downsize(obj):
 	return obj[0]
 
-def copy_fragments(source, dest, csv_struct):
+def copy_fragments(source, dest, csv_path):
 
-	# Looping through all the plate numbers in csv_struct
-	for plate in csv_struct:
+	with open(csv_path, 'r') as file: 
+		csv_struct = csv.reader(file) 
 
-		# Downsizing dim 
-		plate = downsize(plate) 
+		# Looping through all the plate numbers in csv_struct
+		for plate in csv_struct:
 
-		# Two exception cases in the csv with regards to , 
-		plate = exception(plate)
+			# Downsizing dim 
+			plate = downsize(plate) 
 
-		# Creating the destination for creating the folder and copying 
-		dest = dest + plate 
+			# Two exception cases in the csv with regards to , 
+			plate = exception(plate)
 
-		# Creating and copying dir 
-		copy_content(source, dest, plate)
+			# Creating and copying dir 
+			copy_content(source, dest, plate)
 
 
