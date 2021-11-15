@@ -1,17 +1,19 @@
 % Specify the folder where the files live.
 % myFolder = '/data/p301438/IAAfragments_onlyColor-resized50';
-% myFolder = '/projects/mdhali/BscProjects/Stephan/IAAfragments_parchment_onlyColor-resized50/';
-myFolder = '/Users/stephannijdam/Desktop/DSS/Pre_Processing/Parchment_Masks';
+myFolder = '/projects/mdhali/BscProjects/Stephan/IAAfragments_parchment_onlyColor-resized50/';
+% myFolder = '/Users/stephannijdam/Desktop/DSS/Pre_Processing/Parchment_Masks';
 
 % File pattern, in this case .jpg
-% filePattern = fullfile(myFolder, '**/*.jpg');
-filePattern = fullfile(myFolder, '*.jpg');
+filePattern = fullfile(myFolder, '**/*.jpg');
+% filePattern = fullfile(myFolder, '*.jpg');
 
 % List of all the names of the files that match pattern
 
 theFiles = dir(filePattern);
 
-for k = 1 : length(theFiles)
+% k = 1 : length(theFiles)
+
+for k = 1 : 3
 
     % Determine the path to the file 
     baseFileName = theFiles(k).name;
@@ -26,19 +28,26 @@ for k = 1 : length(theFiles)
     % Performing image segmentation via k-means of 2 
     [L,Centers] = imsegkmeans(I, 2);
     
-    % Converting every value 2 to 255
+    % Converting every value 2 to 255im
     L(L==2)=255;
     
     % Converting grayscale image to binarized
     BW1 = im2bw(L,0.5);
     
-    % Filling holes in mask
-    BW2 = imfill(BW1,'holes');
+    % Removing small white area 
+    BW2 = bwareaopen(BW1, 50);
+    
+    % Filling text from mask 
+    BW3 = imfill(BW2, 'holes');
+    
+    % BW2 = bwareaopen(BW1, 4000);
+    % BW3 = imfill(BW2, 'holes');
+    % BW2 = bwmorph(BW1, 'close', Inf);
 
-    % Code lines 38 to  for grabbing the object closest to the center of the image
+    % Code lines 38 to 56 for grabbing the object closest to the center of the image
     % https://nl.mathworks.com/matlabcentral/answers/797442-find-the-object-closest-to-the-center
-    [rows, columns] = size(BW2);
-    [labeledImage, numBlobs] = bwlabel(BW2);
+    [rows, columns] = size(BW3);
+    [labeledImage, numBlobs] = bwlabel(BW3);
 
     % Measuring the centroid of each object 
     props = regionprops(labeledImage, 'Centroid');
@@ -53,7 +62,7 @@ for k = 1 : length(theFiles)
     [sortedDistances, sortOrder] = sort(distances, 'ascend');
    
     % Creating the mask of the object closest to center 
-    Mask = ismember(labeledImage, sortOrder(1:2));
+    Mask = ismember(labeledImage, sortOrder(1:1));
     
     % Combining the mask and fragment
     Res = bsxfun(@times, I, cast(Mask, 'like', I));
@@ -67,23 +76,24 @@ for k = 1 : length(theFiles)
     
     % Dir for extracted mask 
     % Dir_frag = ['/data/p301438/IAAfragments_isolated_parchment_onlyColor-resized50/', newDir];
-    % Dir_frag = ['/projects/mdhali/BscProjects/Stephan/IAAfragments_isolated_parchment_onlyColor-resized50/', newDir];
-    Dir_frag = ['/Users/stephannijdam/Desktop/test/frag/', newDir];
+    Dir_frag = ['/projects/mdhali/BscProjects/Stephan/IAAfragments_isolated_parchment_onlyColor-resized50/', newDir];
+    % Dir_frag = ['/Users/stephannijdam/Desktop/test/frag/', newDir];
     mkdir(Dir_frag)
 
     % Saving the 50 percent downscaled combination of fragment and mask 
     %imwrite(Res, ['/data/p301438/IAAfragments_isolated_parchment_onlyColor-resized50/', newDir ,'/', baseFileName]);
-    %imwrite(Res, ['/projects/mdhali/BscProjects/Stephan/IAAfragments_isolated_parchment_onlyColor-resized50/', newDir, '/', baseFileName]);
-    imwrite(Res, ['/Users/stephannijdam/Desktop/test/frag/', newDir, '/', baseFileName]);
+    imwrite(Res, ['/projects/mdhali/BscProjects/Stephan/IAAfragments_isolated_parchment_onlyColor-resized50/', newDir, '/', baseFileName]);
+    %imwrite(Res, ['/Users/stephannijdam/Desktop/test/frag/', newDir, '/', baseFileName]);
     
     % Dir for extracted mask ;
     % Dir_mask = ['/data/p301438/IAAfragments_parchment_mask_onlyColor-resized50/', newDir];
-    Dir_mask = ['/Users/stephannijdam/Desktop/test/mask/', newDir];
+    Dir_mask = ['/projects/mdhali/BscProjects/Stephan/IAAfragments_parchment_mask_onlyColor-resized50/', newDir];
+    % Dir_mask = ['/Users/stephannijdam/Desktop/test/mask/', newDir];
     mkdir(Dir_mask);
     
     % Saving the mask 
     % imwrite(Mask, ['/data/p301438/IAAfragments_parchment_mask_onlyColor-resized50/', newDir ,'/', baseFileName]);
-    % imwrite(Mask, ['/projects/mdhali/BscProjects/Stephan/IAAfragments_parchment_mask_onlyColor-resized50/', newDir, '/', baseFileName]);
-    imwrite(Mask, ['/Users/stephannijdam/Desktop/test/mask/', newDir, '/', baseFileName])
+    imwrite(Mask, ['/projects/mdhali/BscProjects/Stephan/IAAfragments_parchment_mask_onlyColor-resized50/', newDir, '/', baseFileName]);
+    % imwrite(Mask, ['/Users/stephannijdam/Desktop/test/mask/', newDir, '/', baseFileName])
 
 end
