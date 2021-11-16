@@ -1,7 +1,7 @@
 % Possible parameters depending on system
 
-% myFolder = '/data/p301438/IAAfragments_onlyColor-resized50';
-% myFolder = '/projects/mdhali/BscProjects/Stephan/IAAfragments_parchment_onlyColor-resized50/';
+% myFolder = '/data/p301438/IAAfragments_parchment_onlyColor-resized50';
+% myFolder = '/projects/mdhali/BscProjects/Stephan/IAAfragments_parchment_onlyColor-resized50';
 % myFolder = '/Users/stephannijdam/Desktop/DSS/Pre_Processing/Parchment_Masks';
 % myFolder = 'C:\Users\Stephan\Desktop\BachelorP\DSS\Pre_Processing\Parchment_Masks';
 
@@ -33,7 +33,7 @@
 
 % Specify the folder where the files live.
 
-myFolder = '/data/p301438/IAAfragments_onlyColor-resized50';
+myFolder = '/data/p301438/IAAfragments_parchment_onlyColor-resized50';
 
 % File pattern, in this case .jpg
 
