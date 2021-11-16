@@ -46,10 +46,6 @@ for k = 1 : length(theFiles)
     % Reading the fragment
 
     I = imread(fullFileName);
-    
-    % Downscaling 
-
-    I = imresize(I, 0.2, "bicubic");
 
     % Performing image segmentation via k-means of 2 
 
@@ -61,13 +57,14 @@ for k = 1 : length(theFiles)
     
     % Converting grayscale image to binarized
 
-    BW1 = im2bw(L,0.5);
+    BW1 = imbinarize(L, 0.5);
+    %BW1 = im2bw(I, 0.5);
     
     % Removing small white pixels 
 
     BW2 = bwareaopen(BW1, 50);
     
-    % Filling holes in the mask, most likely text  
+    % Filling black holes in the mask, most likely text  
 
     BW3 = imfill(BW2, 'holes');
 
@@ -108,7 +105,12 @@ for k = 1 : length(theFiles)
     % Dir for extracted frag  
 
     Dir_frag = ['C:\Users\Stephan\Desktop\BachelorP\DSS\Pre_Processing\Parchment_Masks\frag\', newDir];
-    mkdir(Dir_frag)
+
+    % Create dir if not exist 
+
+    if ~exist(Dir_frag, 'dir')
+       mkdir(Dir_frag)
+    end
 
     % Saving the 50 percent downscaled combination of fragment and mask 
 
@@ -117,7 +119,12 @@ for k = 1 : length(theFiles)
     % Dir for extracted mask 
 
     Dir_mask = ['C:\Users\Stephan\Desktop\BachelorP\DSS\Pre_Processing\Parchment_Masks\mask\', newDir];
-    mkdir(Dir_mask);
+
+     % Create dir if not exist 
+
+    if ~exist(Dir_mask, 'dir')
+       mkdir(Dir_mask)
+    end
     
     % Saving the mask
     
