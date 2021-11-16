@@ -33,11 +33,11 @@
 
 % Specify the folder where the files live.
 
-myFolder = '/data/p301438/IAAfragments_parchment_onlyColor-resized50';
+myFolder = 'D:\Bproject\fragments';
 
 % File pattern, in this case .jpg
 
-filePattern = fullfile(myFolder, '**/*.jpg');
+filePattern = fullfile(myFolder, '**\*.jpg');
 
 % List of all the names of the files that match pattern
 
@@ -53,20 +53,20 @@ for k = 1 : length(theFiles)
     % Getting the dir to store the mask, fragment and the path to the
     % binarized image
 
-    position = find(theFiles(k).folder == '/', 1, 'last');
+    position = find(theFiles(k).folder == '\', 1, 'last');
     newDir = extractAfter(theFiles(k).folder, position);
     
     % Dir for extracted frag  
 
-    Dir_frag = ['/data/p301438/IAAfragments_isolated_parchment_onlyColor-resized50/', newDir];
+    Dir_frag = ['D:\Bproject\IAAfragments_isolated_parchment_onlyColor-resized50\', newDir];
 
     % Dir for extracted mask 
 
-    Dir_mask = ['/data/p301438/IAAfragments_parchment_mask_onlyColor-resized50/', newDir];
+    Dir_mask = ['D:\Bproject\IAAfragments_parchment_mask_onlyColor-resized50\', newDir];
     
     % Path to binarized image 
 
-    Binarized_path =  ['/data/p301438/IAAfragments_onlyBinarized/', newDir ,'/', extractBefore(baseFileName, '-D'), '.jpg'];
+    Binarized_path =  ['D:\Bproject\Binarized\IAAfragments_onlyBinarized\', newDir ,'\', extractBefore(baseFileName, '-D'), '.jpg'];
 
     % Reading the fragment
 
@@ -142,7 +142,7 @@ for k = 1 : length(theFiles)
 
     % Saving the 50 percent downscaled combination of fragment and mask 
 
-    imwrite(Res, [Dir_frag,'/', baseFileName]);
+    imwrite(Res, [Dir_frag,'\', baseFileName]);
 
      % Create dir for mask if not exist 
 
@@ -152,6 +152,6 @@ for k = 1 : length(theFiles)
     
     % Saving the mask
     
-    imwrite(Mask, [Dir_mask,'/', baseFileName]);
+    imwrite(Mask, [Dir_mask,'\', baseFileName]);
 
 end
