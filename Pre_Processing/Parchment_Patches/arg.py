@@ -32,6 +32,8 @@ def read(directory):
                     # Creating the dir name for the patches to be stored 
                     dir_name_patches = filename.split('.')
                     dir_name_patches = dir_name_patches[0]
+                    dir_name_patches = dir_name_patches.split('-D')
+                    dir_name_patches = dir_name_patches[0]
 
                     # loading the fragment and mask as cv2 struct with flag 1 color and flag 0 gray-scale
                     fragment = load(file_path, 1)
