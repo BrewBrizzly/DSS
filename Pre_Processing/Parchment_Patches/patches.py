@@ -19,7 +19,7 @@ def patches(fragment, directory, dim):
             # Reducing dimensionality 
             patch = row[0]
 
-            # If patch does not contain only mask, then save !!! Namingconv???? use 001 and remove after D 
+            # If patch does not contain only mask, then save 
             if np.any(patch):
 
                 patch_name = convert(index)
@@ -28,7 +28,7 @@ def patches(fragment, directory, dim):
                 if os.path.isdir(directory):
                     cv2.imwrite(directory + '-Patch_' +  patch_name + '.jpg', patch)
                 else: 
-                    os.mkdir(directory)
+                    os.mkdirs(directory)
                     cv2.imwrite(directory + '-Patch_' +  patch_name + '.jpg', patch)
             
     return patch_number
