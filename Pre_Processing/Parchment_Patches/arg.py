@@ -14,9 +14,6 @@ def read(directory):
     # Looping through each plate in dir
     for plate_number in os.listdir(directory):
 
-        # Keeping track of all patches created per fragment
-        n = 0 
-
         # Joining the path 
         d = os.path.join(directory, plate_number)
 
@@ -30,7 +27,7 @@ def read(directory):
                 if filename.endswith('.jpg'):
 
                     # Creating the file path 
-                    file_path = d + '/' + filename
+                    file_path = os.path.join(d, filename)
 
                     # Creating the dir name for the patches to be stored 
                     dir_name_patches = filename.split('.')
@@ -43,5 +40,5 @@ def read(directory):
                     fragment = padding(fragment, 256)
 
                     # Extracting and saving n by n patches from the fragment 
-                    patch_number = patches(fragment, 'data/p301438/IAApatches_parchment_onlyColor-resized50/' + plate_number + '/' + dir_name_patches + '/', n, 256)
+                    patch_number = patches(fragment, 'data/p301438/IAApatches_parchment_onlyColor-resized50/' + plate_number + '/' + dir_name_patches + '/', 256)
 
