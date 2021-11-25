@@ -21,7 +21,7 @@ def read(directory):
         if os.path.isdir(d):
 
             # Looping to each fragment belonging to a plate 
-            for filename in os.listdir(plate_number):
+            for filename in os.listdir(d):
 
                 # If file is jpg
                 if filename.endswith('.jpg'):
@@ -42,5 +42,5 @@ def read(directory):
                     fragment = padding(fragment, 256)
 
                     # Extracting and saving n by n patches from the fragment 
-                    patch_number = patches(fragment, 'data/p301438/IAApatches_parchment_onlyColor-resized50/' + plate_number + '/' + dir_name_patches + '/', 256)
+                    patches(fragment, '/data/p301438/IAApatches_parchment_onlyColor-resized50/' + plate_number + '/' + dir_name_patches + '/', dir_name_patches, 256)
 
