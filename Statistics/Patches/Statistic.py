@@ -45,7 +45,7 @@ class statistic(object):
         unique = np.sort(np.unique(self.arr_patches_per_fragment))
         fig,ax = plt.subplots(1,1)
         ax.hist(self.arr_patches_per_fragment, bins = unique, edgecolor='black', linewidth=1.0)
-        ax.set_title("occurence of patches per fragmemt")
+        ax.set_title("number of patches per number of fragments")
         ax.set_xticks(unique)
         ax.set_xlabel('number of patches')
         ax.set_ylabel('number of fragments')
