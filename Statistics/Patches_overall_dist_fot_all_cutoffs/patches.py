@@ -4,9 +4,9 @@
 import numpy as np 
 import cv2
 import os 
-# from skimage.util import view_as_blocks
+from skimage.util import view_as_blocks
 
-def count_patches(fragment, dim, min_pixels, amount_of_patches):
+def count_patches(fragment, dim, min_pixels, amount_of_patches, amount_of_fragments):
 
     # Extracting the patches from the fragment 
     patches = view_as_blocks(fragment, (dim, dim, 3))
@@ -31,5 +31,6 @@ def count_patches(fragment, dim, min_pixels, amount_of_patches):
     # If more than 2 patches were found, then add the total  
     if tmp_cnt > 1:
         amount_of_patches += amount_of_patches + tmp_cnt
+        amount_of_fragments += amount_of_fragments + 1 
 
-    return amount_of_patches
+    return amount_of_patches, amount_of_fragments

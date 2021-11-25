@@ -10,7 +10,7 @@ from load import *
 from padding import *
 from patches import * 
 
-def read(directory, tmp_patches, tmp_cutoff):
+def read(directory, tmp_patches, tmp_fragments, tmp_cutoff):
 
     # Go through each plate for each cutoff value 
     for cutoff in range(5, 100, 5):
@@ -20,6 +20,7 @@ def read(directory, tmp_patches, tmp_cutoff):
 
         # Initializing the amount of patches for each run 
         amount_of_patches = 0
+        amount_of_fragments = 0
 
         # Looping through each plate in dir
         for plate_number in os.listdir(directory):
@@ -46,20 +47,18 @@ def read(directory, tmp_patches, tmp_cutoff):
                         fragment = padding(fragment, 256)
 
                         # Counting the amount of patches extracted from a fragment at a certain cutoff 
-                        amount_of_patches = count_patches(fragment, 256, min_pixels, amount_of_patches)
+                        amount_of_patches, amount_of_fragments = count_patches(fragment, 256, min_pixels, amount_of_patches, amount_of_fragments)
         
         # Adding the count and cutoff to the array 
         tmp_patches.append(amount_of_patches)
+        tmp_fragments.append(amount_of_fragments)
         tmp_cutoff.append(cutoff)
 
-        # As a progress check print the array after appending 
-        print(tmp_patches)
-        print(tmp_cutoff)
-
     # Stacking the two lists so to create a histogram 
-    stacked = np.stack((tmp_patches, tmp_cutoff))
-    print(stacked)
+    stacked_patches = np.stack((tmp_patches, tmp_cutoff))
+    stacked_fragments = np.stack((tmp_fragments, tmp_cutoff))
 
     # Saving the np array
-    np.save("count_patches", stacked)
+    np.save("/home/p301438/Python/stat/count_patches.npy", stacked_patches)
+    np.save("/home/p301438/Python/stat/count_fragments.npy", stacked_fragments)
 
