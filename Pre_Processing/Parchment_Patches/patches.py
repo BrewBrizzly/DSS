@@ -21,9 +21,12 @@ def patches(fragment, directory, dir_name_patches, dim):
 
             patch_number = convert(index)
 
-            # Create a directory for the patches if it does not exist yet 
-            if os.path.isdir(directory):
-                cv2.imwrite(directory + dir_name_patches + '-Patch_' +  patch_number + '.jpg', patch)
-            else: 
-                os.makedirs(directory)
-                cv2.imwrite(directory + dir_name_patches + '-Patch_' +  patch_number + '.jpg', patch)
+            # If patch does not contain only mask, then save
+            if np.any(patch):
+
+                # Create a directory for the patches if it does not exist yet 
+                if os.path.isdir(directory):
+                    cv2.imwrite(directory + dir_name_patches + '-Patch_' +  patch_number + '.jpg', patch)
+                else: 
+                    os.makedirs(directory)
+                    cv2.imwrite(directory + dir_name_patches + '-Patch_' +  patch_number + '.jpg', patch)
