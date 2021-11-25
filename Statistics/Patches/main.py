@@ -9,7 +9,7 @@ def main():
     path = '/projects/mdhali/BscProjects/Stephan/IAApatches_parchment_onlyColor-resized50/'
 
     # Initializing statistics object
-    stc = statistic(path, True)
+    stc = statistic(path, False)
 
     # Print the amount of unique patches
     stc.make_hist()

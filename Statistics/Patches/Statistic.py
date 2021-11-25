@@ -27,10 +27,10 @@ class statistic(object):
         # Looping throught the dir 
         for plate in os.listdir(self.path):
             plate = os.path.join(self.path, plate)
+            print("Checking plate")
             for fragment in os.listdir(plate):
                 fragment = os.path.join(plate, fragment)
                 tmp_ls.append(len(os.listdir(fragment)))
-                print(fragment + " checked!")
         
         # Converting array to numpy
         self.arr_patches_per_fragment = np.asarray(tmp_ls)
