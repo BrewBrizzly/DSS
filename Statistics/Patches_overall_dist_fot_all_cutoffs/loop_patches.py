@@ -15,9 +15,9 @@ def read(directory, tmp_patches, tmp_fragments, tmp_cutoff, dim):
 	amount_of_pixels = dim * dim 
 
     # Go through each plate for each cutoff value 
-    for cutoff in range(5, 100, 5):
+    for cutoff in range(0, 105, 5):
 
-        # Calculate minimal amount of pixels given cutoff and dim 256
+         # Calculate minimal amount of pixels given cutoff and dim 256
         min_pixels = amount_of_pixels * (cutoff / 100)
         min_pixels = int(min_pixels)
 
