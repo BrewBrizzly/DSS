@@ -9,7 +9,7 @@ import numpy as np
 from load import *
 from patch_criteria import * 
 
-def read(directory, tmp_patches, tmp_fragments, tmp_cutoff, dim):
+def read(directory, tmp_patches, dim):
 
     # Amount of pixels in grayscale image
     amount_of_pixels = dim * dim 
@@ -20,10 +20,6 @@ def read(directory, tmp_patches, tmp_fragments, tmp_cutoff, dim):
          # Calculate minimal amount of pixels given cutoff and dim 256
         min_pixels = amount_of_pixels * (cutoff / 100)
         min_pixels = int(min_pixels)
-
-        # Initializing the amount of patches for each run 
-        amount_of_patches = 0
-        amount_of_fragments = 0
 
         # Looping through each plate in dir
         for plate_number in os.listdir(directory):
@@ -52,21 +48,13 @@ def read(directory, tmp_patches, tmp_fragments, tmp_cutoff, dim):
                     # Checking if the patch meats the cutoff 
                     track_cutoff = track_cutoff + check_patch(gray_patch, min_pixels)
 
-                # Checks if fragment contains at least two patches 
-                if track_cutoff > 1:
-                    amount_of_patches = amount_of_patches + track_cutoff
-                    amount_of_fragments += 1  
-        
-        # Adding the count and cutoff to the array 
-        tmp_patches.append(amount_of_patches)
-        tmp_fragments.append(amount_of_fragments)
-        tmp_cutoff.append(cutoff)
+                # List of patches per fragment [2, 5, 7, 0, ..] that are according set criteria 
+                # Through len of the arr one can get the amount of fragments
+                tmp_patches.append(track_cutoff)
 
-    # Stacking the two lists so to create a histogram 
-    stacked_patches = np.stack((tmp_patches, tmp_cutoff))
-    stacked_fragments = np.stack((tmp_fragments, tmp_cutoff))
+        # Saving the np array for that criteria 
+        np.save("/home/p301438/Python/Stat/cnt_patch_" + str(cutoff) + ".npy", tmp_patches)
 
-    # Saving the np array
-    np.save("/home/p301438/Python/Stat/count_patches.npy", stacked_patches)
-    np.save("/home/p301438/Python/Stat/count_fragments.npy", stacked_fragments)
+        # Clearing the list after each run with a criteria 
+        tmp_patches.clear()
 
