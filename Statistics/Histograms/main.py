@@ -15,7 +15,7 @@ def main():
     stc.make_histogram()
 
     # Create one histogram containing the count
-    # of each fragment with more than two patches 
+    stc.make_summary()
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-# Contains statistical methods
+# Contains statistical methods for information on the patches extracted 
 
 # Modules
 import os 
@@ -9,14 +9,12 @@ class statistic(object):
 
     def __init__(self, path):
         self.path = path
+        self.cnt_fragments = []
+        self.cnt_patches = []
+        self.trk_cutoff = [] 
         
     # Creates all the histograms for each list 
     def make_histogram(self):
-
-        # Temporary list to create one general histogram
-        tmp_frag = []
-        tmp_patch = []
-        tmp_cutoff = []
 
         # Looping through all the lists 
         for list_name in os.listdir(self.path):
@@ -28,23 +26,29 @@ class statistic(object):
                 # Load the numpy list 
                 arr = np.load(list_path)
 
-                # Converting for the plot to ls
+                # Converting arr for the plot to list
                 ls = arr.tolist()
 
-                # Removing zero values 
+                # Removing zero values fron list
                 ls = self.remove_value_ls(ls, 0)
 
-                # Removing 1 values 
+                # Removing 1 values from list 
                 ls = self.remove_value_ls(ls, 1)
+
+                # Name of the plot 
+                name = list_name.split('.npy')[0]
+
+                # Current cutoff value 
+                cutoff = name.split('_')[2]
+
+                # Tracking the current cutoff 
+                self.trk_cutoff.append(cutoff)
 
                 # Getting each unique bin for the plot  
                 bins = np.unique(ls)
 
-                # Checking if there is a bin value 
+                # Checking if there is a bin value
                 if bins.any():
-
-                    # Name of the plot 
-                    name = list_name.split('.npy')[0]
 
                     # Counting all the patches that meet the cutoff 
                     cnt_patches = sum(ls)
@@ -52,21 +56,17 @@ class statistic(object):
                     # Getting all the other coutns for plot
                     cnt_fragments = len(ls)
 
-                    # Current cutoff value 
-                    cutoff = name.split('_')[2]
-
                     # Plotting and saving the histrogram of the list
                     self.plt_histogram_unq(ls, bins, name, cnt_patches, cnt_fragments, cutoff)
 
-                    # Saving the values in list 
-                    tmp_frag.append(cnt_fragments)
-                    tmp_patch.append(cnt_patches)
-                    tmp_cutoff.append(int(cutoff))
+                    # Tracking the patches and fragments 
+                    self.cnt_fragments.append(cnt_fragments)
+                    self.cnt_patches.append(cnt_patches)
 
-        self.plt_histogram_gen(tmp_frag, tmp_cutoff, 'fragments.png' )
-        self.plt_histogram_gen(tmp_patch, tmp_cutoff, 'patches.png')
-
-
+                # Keeping track of the empy bins fragments and patches 
+                else:
+                    self.cnt_fragments.append(0)
+                    self.cnt_patches.append(0)
 
 
     def plt_histogram_unq(self, ls, bins, name, cnt_patches, cnt_fragments, cutoff):
@@ -93,73 +93,87 @@ class statistic(object):
         plt.savefig('Images/Unique/' + name + '.png')
         plt.close()    
 
-    def plt_histogram_gen(self, ls, bins, name):
-        print(ls)
-        print(bins)
+
+    # Making an overall summary of the patches and fragments accepted 
+    def make_summary(self):
+
+        # Making sure that the lists are ordered by bins  
+        self.sort()
+
+        # Plotting summary 
+        self.plotter()
+
+    # Sorting the lists in order of bins 
+    def sort(self):
+
+        # Defining our stop value 
+        # The length of the list
+        stop = len(self.trk_cutoff)
+
+        # For index and object in our trk_cutoff
+        for idx1, obj in enumerate(self.trk_cutoff):
+
+            # Comparing index 
+            idx2 = idx1 + 1 
+
+            # Comparing till the stop 
+            while(idx2 != stop):
+                
+                # Object in the list to compare to 
+                cmp_obj = self.trk_cutoff[idx2]
+
+                # Swap if object is larget than comparison obj
+                if int(obj) > int(cmp_obj):
+
+                    # Order the bins 
+                    self.trk_cutoff[idx1] = cmp_obj
+                    self.trk_cutoff[idx2] = obj
+
+                    # Order the other two lists acc. 
+                    tmp1 = self.cnt_fragments[idx1] 
+                    tmp2 = self.cnt_fragments[idx2]
+
+                    self.cnt_fragments[idx1] = tmp2
+                    self.cnt_fragments[idx2] = tmp1
+
+                    tmp1 = self.cnt_patches[idx1] 
+                    tmp2 = self.cnt_patches[idx2]
+
+                    self.cnt_patches[idx1] = tmp2
+                    self.cnt_patches[idx2] = tmp1
+
+                    obj = cmp_obj
+
+                # Increase idx2
+                idx2 += 1 
+
+    def plotter(self):
+        # Plotting the histogram 
+
+        # Creating the figure and axis 
+        fig, axs = plt.subplots(1, 1)
+
+        # Adding the hist values to the axis 
+        axs.plot(self.trk_cutoff, self.cnt_fragments, label = 'Fragments', linewidth = 1.0)
+        axs.plot(self.trk_cutoff, self.cnt_patches, label = 'Patches', linewidth = 1.0)
+
+        # Adding a limit and grid 
+        axs.set_xlim(self.trk_cutoff[0], self.trk_cutoff[-1])
+        axs.grid()
+
+        # Setting the labels for the axis 
+        axs.set_xlabel('Percentage of fragment in image')
+        axs.set_ylabel('Occurence')
+        axs.legend()
+
+        # Adding texts to the figure 
+        plt.savefig('Images/Summary/' + 'summary' + '.png')
+        plt.close()
 
     def remove_value_ls(self, ls, value):
         if value in ls:
             ls = list(filter(lambda x: x != value, ls))
         return ls
-
-            
-
-
-
-
-    # # creates a list where each index is the amount of patches for a fragment 
-    # def make_arr_patches_per_fragment(self):
-
-    #     # Temporary list
-    #     tmp_ls = [] 
-
-    #     # Looping throught the dir 
-    #     for plate in os.listdir(self.path):
-    #         plate = os.path.join(self.path, plate)
-    #         print("Checking plate")
-    #         for fragment in os.listdir(plate):
-    #             fragment = os.path.join(plate, fragment)
-    #             tmp_ls.append(len(os.listdir(fragment)))
-        
-    #     # Converting array to numpy
-    #     self.arr_patches_per_fragment = np.asarray(tmp_ls)
-
-    #     # Setting the amount of patches 
-    #     self.set_total_patches()
-
-    #     # Saving the numpy array
-    #     self.save_np()
-
-    # def make_hist(self):
-    #     unique = np.sort(np.unique(self.arr_patches_per_fragment))
-    #     fig,ax = plt.subplots(1,1)
-    #     ax.hist(self.arr_patches_per_fragment, bins = unique, edgecolor='black', linewidth=1.0)
-    #     ax.set_title("number of patches per number of fragments")
-    #     ax.set_xticks(unique)
-    #     ax.set_xlabel('number of patches')
-    #     ax.set_ylabel('number of fragments')
-    #     plt.figtext(0.55, 0.7, "Total patches: " + str(self.total_patches))
-    #     plt.savefig('10_percent_cutoff/occurence.png')
-
-
-    # def set_total_patches(self):
-    #     self.total_patches = sum(self.arr_patches_per_fragment)
-    
-
-    # def get_total_patches(self):
-    #     return self.total_patches
-
-
-    # def set_arr_patches_per_fragment(self):
-    #     self.arr_patches_per_fragment = np.load('10_percent_cutoff/patches_per_fragment.npy')
-
-
-    # def get_arr_patches_per_fragment(self):
-    #     return self.arr_patches_per_fragment
-
-
-    # def save_np(self):
-    #     np.save('patches_per_fragment', self.arr_patches_per_fragment)
     
 
 
