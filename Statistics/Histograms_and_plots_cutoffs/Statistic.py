@@ -83,13 +83,13 @@ class statistic(object):
         axs.set_xticks(bins)
 
         # Setting the labels for the axis 
-        axs.set_xlabel('number of patches per fragment')
-        axs.set_ylabel('number of patches')
+        axs.set_xlabel('Total number of patches in fragment')
+        axs.set_ylabel('Number of fragments')
 
         # Adding texts to the figure 
         plt.figtext(0.55, 0.75, "Cutoff at: " + cutoff + '%')
-        plt.figtext(0.55, 0.70, "total patches: " + str(cnt_patches))
-        plt.figtext(0.55, 0.65, "total fragments: " + str(cnt_fragments))
+        plt.figtext(0.55, 0.70, "Total patches: " + str(cnt_patches))
+        plt.figtext(0.55, 0.65, "Total fragments: " + str(cnt_fragments))
         plt.savefig('Images/Unique/' + name + '.png')
         plt.close()    
 
@@ -148,7 +148,6 @@ class statistic(object):
                 idx2 += 1 
 
     def plotter(self):
-        # Plotting the histogram 
 
         # Creating the figure and axis 
         fig, axs = plt.subplots(1, 1)
@@ -159,6 +158,7 @@ class statistic(object):
 
         # Adding a limit and grid 
         axs.set_xlim(self.trk_cutoff[0], self.trk_cutoff[-1])
+        axs.set_ylim(0,)
         axs.grid()
 
         # Setting the labels for the axis 
