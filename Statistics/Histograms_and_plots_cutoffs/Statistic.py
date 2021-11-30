@@ -83,8 +83,8 @@ class statistic(object):
         axs.set_xticks(bins)
 
         # Setting the labels for the axis 
-        axs.set_xlabel('Total number of patches in fragment')
-        axs.set_ylabel('Number of fragments')
+        axs.set_xlabel('Total number of patches per fragment')
+        axs.set_ylabel('Frequency')
 
         # Adding texts to the figure 
         plt.figtext(0.55, 0.75, "Cutoff at: " + cutoff + '%')
@@ -162,8 +162,8 @@ class statistic(object):
         axs.grid()
 
         # Setting the labels for the axis 
-        axs.set_xlabel('Percentage of fragment in image')
-        axs.set_ylabel('Occurence')
+        axs.set_xlabel('Percentage of non zero value pixels')
+        axs.set_ylabel('Frequency')
         axs.legend()
 
         # Adding texts to the figure 

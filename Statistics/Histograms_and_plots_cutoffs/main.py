@@ -6,7 +6,7 @@ from Statistic import statistic
 def main():
 
     # Defining the path to the lists 
-    path = '/Users/stephannijdam/Desktop/DSS/Statistics/Lists_for_all_cutoffs/Lists'
+    path = '/home/s3690970/Desktop/Bachelor_Project/DSS/Statistics/Lists_for_all_cutoffs/Lists/'
 
     # Initializing statistics object
     stc = statistic(path)

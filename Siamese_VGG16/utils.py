@@ -1,5 +1,5 @@
-# helper functions, euclidian distance function from Keras does not work 
-# Code is lend from https://www.pyimagesearch.com/2020/11/30/siamese-networks-with-keras-tensorflow-and-deep-learning/
+# helper functions, euclidian distance function from Keras does not work properly 
+# Euclidian distance code is used from https://www.pyimagesearch.com/2020/11/30/siamese-networks-with-keras-tensorflow-and-deep-learning/
 
 import tensorflow.keras.backend as K
 import matplotlib.pyplot as plt

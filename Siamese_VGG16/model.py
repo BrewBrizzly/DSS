@@ -1,4 +1,4 @@
-# Building the Siamese model 
+# Building a Siamese model 
 
 from VGG16 import *
 from utils import * 
@@ -8,24 +8,30 @@ from tensorflow.keras.layers import Input
 from tensorflow.keras.layers import Lambda
 from tensorflow.keras.datasets import mnist
 
-def build_Siamese_network():
-	# configure the Sister networks
-	imgA = Input(shape= inputShape)
-	imgB = Input(shape= inputShape)
-	featureExtractor = build_VGG16_network(inputShape)
-	featsA = featureExtractor(imgA)
-	featsB = featureExtractor(imgB) 
+# Function that connects two CNNS via a ECL layer
+# which is connected to a block of dense layers 
+def build_Siamese_network(inputShape = 256):
+
+	# Configuring the inputshape of the model 
+	imgTop = Input(shape = inputShape)
+	imgBottom = Input(shape = inputShape)
+
+	# Functions returns a VGG16 model
+	CNNTop = build_VGG16_network(imgTop)
+	CNNBottom = build_VGG16_network(imgBottom) 
 
 	# Connecting the Sister networks to lambda euclidian distance layer 
-	distance = Lambda(euclidean_distance)([featsA, featsB])
+	distance = Lambda(euclidean_distance)([CNNTop, CNNBottom])
 
 	# Creating the final dense layers 
-	x = Dense(512, activation="relu")(distance)
-	x = Dense(512, activation="relu")(x)
-	outputs = Dense(1, activation="sigmoid")(x)
+	x = Dense(512, activation="relu", name = 'block6_dense1')(distance)
+	x = Dense(512, activation="relu", name = 'block6_dense2')(x)
+	outputs = Dense(1, activation="sigmoid", name = 'block6_dense3')(x)
 
 	# building the complete model 
-	model = Model(inputs=[imgA, imgB], outputs=outputs)	
+	model = Model(inputs=[CNNTop, CNNBottom], outputs=outputs)	
 
 	# Summary of the complete model 
 	model.Summary()
+
+build_VGG16_network()
