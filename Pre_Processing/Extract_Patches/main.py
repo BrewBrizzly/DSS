@@ -1,8 +1,13 @@
 # Script for extacting from the base patches
-# All the patches that meet the requirement(s)
+# a list of paths of patches that meet the requirement
+# This list is ordered on bins 
+# Example: paths = [[path_i, path_j, path_..], [path_x, path_z, path_..], ...]
+#		   bins  = [     bin_i               ,          bin_j           , ...] 
+# Fragments that do not contain more than one patch are not included in the list
+
 
 # Required lib 
-from extact import extract_patches
+from extact import *
 
 def det_threshold(cutoff, dim):
 	pixels = dim * dim 
@@ -10,15 +15,14 @@ def det_threshold(cutoff, dim):
 
 def main():
 
-	# Setting the required paths 
-	path_to_patches = ''
-	path_to_save = ''
+	# Setting the required path 
+	path_to_patches = 'IAA_fragments_isolated/..'
 
 	# Calculating the desired threshold 
-	threshold = det_threshold(0.15, dim)
+	threshold = det_threshold(0.15, 256)
 
 	# Extracting the pacthes and creating a list 
-	extract_patches(path_to_patches, path_to_save, int(threshold))
+	extract_patches(path_to_patches, int(threshold))
 
 if __name__ == '__main__':
 	main()

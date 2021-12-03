@@ -7,47 +7,46 @@ import cv2
 import numpy as np 
 
 # Loops through all patches and passes them to det_pass
-def extract_patches(path_to_patches, path_to_save, threshold):
+def extract_patches(path_to_patches, threshold):
 
 	# Creating a tmp list that keeps track of all the 
 	# Fragments/patches belonging to a bin 
-	data_path = []
+	paths_list = []
 
 	# Looping through all the platenumbers 
-	for platenumber in os.path.listdirs(path_to_patches):
+	for platenumber in os.listdir(path_to_patches):
 
 		# Creating the path to a plate 
 		path_platenumber = os.path.join(path_to_patches, platenumber)
 
 		# Looping through all the fragments from a plate 
-		for fragment in os.path.listdirs(path_platenumber):
+		for fragment in os.listdir(path_platenumber):
 
 			# Creating the path to a fragment 
 			path_fragment = os.path.join(path_platenumber, path_fragment)
 
 			# Determines, for each fragment, which patches pass the requirement
-			# Returns a list to update the bins and its members 
-			data_path = det_pass(path_fragment, path_to_save, platenumber, fragment, threshold)
+			# Returns a list of lists containing the paths to the suited patches
+			paths_list = det_pass(path_fragment, threshold, path_list)
 
-	# Adding all the lists of equal len to same bins 
-	create_bins(data_path)
+	# Creating and saving desired structure 
+	create_bins_structure(paths_list)
 
 
-# Determines if a patch should be copied to the data directory
-# creates a list of all bins and their patches 
-def det_pass(path_fragment, path_to_save, platenumber, fragment, threshold, data_path):
+# Extends a list with a list of paths to patches of a fragment, where a list is equal to a fragment
+def det_pass(path_fragment, threshold, path_list):
 
 	# Looping through all the patches of a fragment
-	for patch in os.path.listdirs(path_fragment):
+	for patch in os.listdir(path_fragment):
 
 		# Temporary list to save all the paths of
-		# Patches that pass the requirement
-		tmp_list = [] 
+		# patches that pass the requirement
+		tmp_patch_list = [] 
 
 		# Cnt all patches that pass the requirement 
 		cnt_patch = 0
 
-		# Create the path the the patch 
+		# Create the path to the patch 
 		path_patch = os.path.join(path_fragment, patch)
 
 		# Load the patch via cv2 as gray
@@ -59,54 +58,51 @@ def det_pass(path_fragment, path_to_save, platenumber, fragment, threshold, data
 			# Increase the count
 			cnt_patch += 1 
 
-			# Creating the save path 
-			save = os.dir.join(path_to_save + platenumber + fragment)
-
 			# Adding the patch path to tmp_list
-			tmp_list.append(save + patch)
-
-			# Check if fragment folder already exists
-			if os.dir.isdir(save):
-
-				# rsync the patch to the data-set 
-				os.system("rsync -avnP " + path_patch + ' ' + save) 
-
-			else: 
-
-				# Creating the directory for saving 
-				os.mkdirs(save)
-				
-				# rsync the patch to the data-set 
-				os.system("rsync -avnP " + path_patch + ' ' + save) 
+			tmp_patch_list.append(path_patch)
 
 	# If there is more than 1 patch extracted 
 	if cnt_patch > 1: 
-		data_path.append(tmp_list)
 
-	return data_path
+		# Add the paths as a list to the overall structure
+		path_list.append(tmp_list)
 
-# Creates the bins in a list 
-def create_bins(data):
+	return path_list
+
+
+# Extending all the lists of equal len to one list 
+# [[paths_belonging_to_same_bin],[...]]
+# [[bin_number], [bin_number]]
+# Saving that list
+def create_bins_structure(data):
 
 	# List to store all the bins values 
-	bins = []
+	bin_values = []
+
+	# List to store all tists per bin
+	binned_list = []
 
 	# Looping through all the lists to determine the bins
 	for instance in data:
 		bin_number = len(instance)
-		if bin_number is not in bins:
-			bins.append(len(instance))
+		if bin_number is not in bin_values:
+			bin_values.append(len(instance))
 
-	# looping through all the bin values 
-	for bin_value in bins:
+	# Sort the bin list increasingly 
+	# So that the eventual list is also sorted
+	bin_values.sort()
+
+	# looping through all the bin values [2,3,4,...]
+	for bin_value in bin_values:
 
 		# Creating a temp list to store all the lists belonging to that bin
 		tmp_list = []
 
-		# Going through the complete list to check create the appropriate bins
-		# In the list structure
+		# Going through the complete list to create the appropriate bins
+		# as is tmp contains all the paths belonging to a bin
 		for instance in data:
 
+			# If the len of a list is equal to a bin value 
 			if len(instance) == bin_value:
 				tmp_list.extend(instance)
 
@@ -114,10 +110,33 @@ def create_bins(data):
 				data.remove(instance)
 
 		# Bin and all its values added to list 
-		data.append(tmp_list)
+		binned_list.append(tmp_list)
 
-	# Save the struct 
-	np.save('data_set.npy', data)
+	# Save the structers
+	save_list('data_set_' + str(cutoff) + '.npy', binned_list)
+	save_list('bin_set_' + str(cutoff) + '.npy', bin_values)
+
+	quick_check(binned_list, bin_values)
+
+
+
+# Check if the list are correctly made
+def quick_check(binned_list, bin_values):
+	print("The len of the data_set is: ", len(binned_list))
+	print("The len of the data_set should be equal to that of the bins: ", len(bin_values))
+	print("The following bins are included: ", bin_values)
+
+	for ls, bin_value in zip(binned_list, bin_values):
+    	print("Bin ", bin_value, " contains ", len(ls), " paths to patches.")
+
+
+# Saving the list as a numpy struct 
+def save_list(name, ls):
+	np.save(name, ls)
+
+
+
+
 
 
 
