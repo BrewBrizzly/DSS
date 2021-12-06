@@ -29,12 +29,6 @@ class statistic(object):
                 # Converting arr for the plot to list
                 ls = arr.tolist()
 
-                # Removing zero values fron list
-                ls = self.remove_value_ls(ls, 0)
-
-                # Removing 1 values from list 
-                ls = self.remove_value_ls(ls, 1)
-
                 # Name of the plot 
                 name = list_name.split('.npy')[0]
 
@@ -53,7 +47,7 @@ class statistic(object):
                     # Counting all the patches that meet the cutoff 
                     cnt_patches = sum(ls)
 
-                    # Getting all the other coutns for plot
+                    # Getting all the fragments
                     cnt_fragments = len(ls)
 
                     # Plotting and saving the histrogram of the list

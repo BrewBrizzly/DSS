@@ -48,9 +48,11 @@ def read(directory, tmp_patches, dim):
                     # Checking if the patch meats the cutoff 
                     track_cutoff = track_cutoff + check_patch(gray_patch, min_pixels)
 
-                # List of patches per fragment [2, 5, 7, 0, ..] that are according set criteria 
-                # Through len of the arr one can get the amount of fragments
-                tmp_patches.append(track_cutoff)
+                # If more than 1 patch extrected 
+                if track_cutoff > 1:
+                    # List of patches per fragment [2, 5, 7, 0, ..] that are according set criteria 
+                    # Through len of the arr one can get the amount of fragments
+                    tmp_patches.append(track_cutoff)
 
         # Saving the np array for that criteria 
         np.save("/home/p301438/Python/Stat/cnt_patch_" + str(cutoff) + ".npy", tmp_patches)
