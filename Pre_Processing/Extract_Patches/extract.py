@@ -132,9 +132,14 @@ def quick_check(binned_list, bin_values):
     print("The len of the data_set should be equal to that of the bins: ", len(bin_values))
     print("The following bins are included: ", bin_values)
 
+    # Tmp count for totall amount of patches
+    tmp_cnt = 0
+
     for ls, bin_value in zip(binned_list, bin_values):
         print("Bin ", bin_value, " contains ", len(ls), " paths to patches.")
-
+        tmp_cnt += len(ls)
+    
+    print("Total amount of patches: ", tmp_cnt)
 
 # Saving the list as a numpy struct 
 def save_list(name, ls):
