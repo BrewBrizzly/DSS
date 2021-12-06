@@ -7,8 +7,9 @@
 
 
 # Required lib 
-from extact import *
+from extract import *
 
+# Determines the pixel threshold 
 def det_threshold(cutoff, dim):
 	pixels = dim * dim 
 	return cutoff * pixels 
@@ -16,7 +17,7 @@ def det_threshold(cutoff, dim):
 def main():
 
 	# Setting the required path 
-	path_to_patches = 'IAA_fragments_isolated/..'
+	path_to_patches = '/projects/mdhali/BscProjects/Stephan/IAApatches_parchment_onlyColor-resized50/'
 
 	# Calculating the desired threshold 
 	threshold = det_threshold(0.15, 256)
