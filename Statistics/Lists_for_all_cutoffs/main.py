@@ -9,7 +9,7 @@ def main():
 	tmp_patches = []
 
 	# Reading the paths to fragment and performing the pre-processing steps 
-	read('/data/p301438/IAApatches_parchment_onlyColor-resized50/', tmp_patches, 256)
+	read('/projects/mdhali/BscProjects/Stephan/IAApatches_parchment_onlyColor-resized50/', tmp_patches, 256)
 
 if __name__ == '__main__':
 	main()

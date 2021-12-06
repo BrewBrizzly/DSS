@@ -16,6 +16,8 @@ def read(directory, tmp_patches, dim):
 
     # Go through each plate for each cutoff value 
     for cutoff in range(0, 105, 5):
+    
+        print(cutoff)
 
          # Calculate minimal amount of pixels given cutoff and dim 256
         min_pixels = amount_of_pixels * (cutoff / 100)
@@ -55,7 +57,7 @@ def read(directory, tmp_patches, dim):
                     tmp_patches.append(track_cutoff)
 
         # Saving the np array for that criteria 
-        np.save("/home/p301438/Python/Stat/cnt_patch_" + str(cutoff) + ".npy", tmp_patches)
+        np.save("/home/s3690970/Desktop/Bachelor_Project/DSS/Statistics/Lists_for_all_cutoffs/Lists/cnt_patch_" + str(cutoff) + ".npy", tmp_patches)
 
         # Clearing the list after each run with a criteria 
         tmp_patches.clear()
