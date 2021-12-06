@@ -9,8 +9,8 @@ from tensorflow.keras.layers import Lambda
 from tensorflow.keras.datasets import mnist
 
 # Just disables the warning, doesn't take advantage of AVX/FMA to run faster
-import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+# import os
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Function that connects two CNNS via a ECL layer
 # which is connected to a block of dense layers 
@@ -43,4 +43,6 @@ def build_Siamese_network(inputShape):
 	# Summary of the complete model 
 	model.Summary()
 
+print("Running")
 build_VGG16_network((256, 256, 3))
+print("Finished")
