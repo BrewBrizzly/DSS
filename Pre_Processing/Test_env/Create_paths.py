@@ -124,7 +124,7 @@ def save_lists(cutoff_list):
     for i in range(0, 21, 1):
 
         # Storing the list of paths for a cutoff
-        np.save('/home/s3690970/Desktop/Bachelor_Project/DSS/Pre_Processing/Test_env/Lists/Paths_' + ext[i] + '.npy' , cutoff_list[i])
+        np.save('/home/s3690970/Desktop/Bachelor_Project/DSS/Pre_Processing/Test_env/Lists/Paths_' + ext[i] + '.npy' , cutoff_list[i], allow_pickle = True)
 
 
 
