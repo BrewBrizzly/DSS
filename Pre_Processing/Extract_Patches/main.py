@@ -12,7 +12,7 @@ from extract import *
 # Determines the pixel threshold 
 def det_threshold(cutoff, dim):
 	pixels = dim * dim 
-	return cutoff * pixels 
+	return pixels * (cutoff / 100) 
 
 def main():
 
@@ -20,7 +20,7 @@ def main():
 	path_to_patches = '/projects/mdhali/BscProjects/Stephan/IAApatches_parchment_onlyColor-resized50/'
 
 	# Calculating the desired threshold 
-	threshold = det_threshold(0.15, 256)
+	threshold = det_threshold(15, 256)
 
 	# Extracting the pacthes and creating a list 
 	extract_patches(path_to_patches, int(threshold))
