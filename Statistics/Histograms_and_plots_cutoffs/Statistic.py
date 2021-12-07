@@ -87,6 +87,12 @@ class statistic(object):
         plt.savefig('Images/Unique/' + name + '.png')
         plt.close()    
 
+        print("cutoff: ", cutoff)
+
+        for bin in bins:
+            print("Bin ", bin, " contains ", ls.count(bin) * bin , " patches.")
+
+
 
     # Making an overall summary of the patches and fragments accepted 
     def make_summary(self):
