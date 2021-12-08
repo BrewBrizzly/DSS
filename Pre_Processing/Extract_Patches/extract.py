@@ -1,6 +1,6 @@
 # Script for extracting patches 
 
-# Required lib 
+# Required lib
 
 import os 
 import cv2

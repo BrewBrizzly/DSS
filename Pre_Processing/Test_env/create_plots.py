@@ -89,38 +89,73 @@ def create_len_list(arr):
     return len_ls
 
 
-def summary_sort(ls1, ls2, bin):
+def summary_sort(ls1, ls2, bins):
     
-     # Stop value 
-    stop = len(bin)
+    # Defining our stop value 
+    # The length of the list
+    stop = len(bins)
 
-    # Base
-    for i in range(len(bin)):
-        base = bin[i]
-        j = i + 1 
+    # For index and object in our trk_cutoff
+    for idx1, obj in enumerate(bins):
 
-        while(j != stop):
-            comp = bin[j]
+        # Comparing index 
+        idx2 = idx1 + 1 
 
-            # Swap
-            if base > comp:
-                tmp = base
-                base = comp
-                bin[i] = comp
+        # Comparing till the stop 
+        while(idx2 != stop):
+            
+            # Object in the list to compare to 
+            cmp_obj = bins[idx2]
 
-                comp = tmp 
-                bin[j] = comp
-        
-            j += 1 
-        
-        bin[i] = base 
-    
-    print(bin)
-        
+            # Swap if object is larget than comparison obj
+            if int(obj) > int(cmp_obj):
 
-#Running the script for creating each plot 
-loop_arrays()
+                # Order the bins 
+                bins[idx1] = cmp_obj
+                bins[idx2] = obj
 
+                # Order the other two lists acc. 
+                tmp1 = ls1[idx1] 
+                tmp2 = ls1[idx2]
+
+                ls1[idx1] = tmp2
+                ls1[idx2] = tmp1
+
+                tmp1 = ls2[idx1] 
+                tmp2 = ls2[idx2]
+
+                ls2[idx1] = tmp2
+                ls2[idx2] = tmp1
+
+                obj = cmp_obj
+
+            # Increase idx2
+            idx2 += 1 
+
+
+# Creating the summary 
+def create_summary(ls1, ls2, bins)
+
+    # Creating the figure and axis 
+    fig, axs = plt.subplots(1, 1)
+
+    # Adding the hist values to the axis 
+    axs.plot(bins, ls2, label = 'Fragments', linewidth = 1.0)
+    axs.plot(bins, ls1, label = 'Patches', linewidth = 1.0)
+
+    # Adding a limit and grid 
+    axs.set_xlim(self.trk_cutoff[0], self.trk_cutoff[-1])
+    axs.set_ylim(0,)
+    axs.grid()
+
+    # Setting the labels for the axis 
+    axs.set_xlabel('Percentage of non zero value pixels')
+    axs.set_ylabel('Frequency')
+    axs.legend()
+
+    # Adding texts to the figure 
+    plt.savefig('Images/Summary/' + 'summary' + '.png')
+    plt.close()
 
 
 
