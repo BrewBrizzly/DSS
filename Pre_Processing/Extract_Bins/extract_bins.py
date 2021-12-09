@@ -4,28 +4,28 @@
 import numpy as np 
 
 # Looping through all the arrays
-def loop_lists():
-	
-	# Setting the path
-	path = ''
+def loop_arrays(path):
 
 	# Looping through all the arrays in the dir 
 	for arr_file in os.listdir(path):
 
-		# Creating the path to an array
-		arr_path = os.dir.join(path, arr_file)
+		# Checking if the file is a numpy array 
+		if arr_file.endswith('.npy'):
 
-		# Loading the array
-		arr = np.load(arr_path, allow_pickle = True)
+			# Creating the path to an array
+			arr_path = os.dir.join(path, arr_file)
 
-		# Creating a sorted bins list for an array
-		bins_ls = create_bins_ls(arr)
+			# Loading the array
+			arr = np.load(arr_path, allow_pickle = True)
 
-		# Creating the bin structure in the array
-		create_bins_structure(arr, bins_ls, arr_file)
+			# Creating a sorted bins list for an array
+			bins_ls = create_bins_ls(arr)
+
+			# Creating the bin structure in the array
+			create_bins_structure(arr, bins_ls, arr_file)
 
 
-# Create the bin structure for an array
+# Create a list containing all the bins 
 def create_bins_ls(arr):
 
 	# Creating a list containing an oredered bins of array

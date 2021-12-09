@@ -21,7 +21,7 @@ def ceate_paths(path):
 
             fragment_path = os.path.join(plate_path, fragment)
 
-            # Looping through all the plates belonging to a fragment
+            # Looping through all the patches belonging to a fragment
             cutoff_list = loop_patches(fragment_path, cutoff_list, min_pixels) 
 
     # Saving the list of paths for each cutoff point
