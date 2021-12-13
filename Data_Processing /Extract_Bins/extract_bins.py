@@ -42,6 +42,9 @@ def create_bins_ls(arr):
 	# Order the bin list 
 	bin_ls.sort()
 
+	# Returning the sorted list 
+	return bins_ls
+
 
 # Creating the bin structure in an array
 def create_bins_structure(arr, bins, name)
@@ -49,10 +52,10 @@ def create_bins_structure(arr, bins, name)
 	# List for bin structure
 	bin_strc = []
 
-	# Looping through all the bin values 
+	# Looping through all the bin values in order
 	for i in range(len(bins)):
 
-		# Storing a single bin structure 
+		# Storing all the fragments belonging to a bin
 		tmp_bin = [] 
 
 		# Looping through paths in array 
@@ -61,9 +64,9 @@ def create_bins_structure(arr, bins, name)
 			# If a instane of paths belongs to a bin 
 			if len(instance) == bn[i]:
 
-				tmp_bin.extend(instance)
+				tmp_bin.append(instance)
 
-		bin_strc.append(instance)
+		bin_strc.append(tmp_bin)
 
 	# Storing the bin_struct 
 	np.save('Lists_sorted/' + name, bin_strc, allow_pickle = True)
