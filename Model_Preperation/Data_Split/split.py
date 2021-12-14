@@ -26,7 +26,7 @@ def split_data(path, percentage_training, percentage_testing):
 
 def loop_bins(arr, Training, Testing, percentage_training, percentage_testing):
 
-	# Loop in order of binds
+	# Loop in order of bins
 	for i in len(range(arr)):
 
 		# Getting the array belonging to a bin 
@@ -36,9 +36,9 @@ def loop_bins(arr, Training, Testing, percentage_training, percentage_testing):
 		# percentage trainig/val and testing
 		tmp_training, tmp_testing = train_test_split(bin_arr, train_size =  percentage_training, test_size = percentage_testing, random_state = 24)
 
-		# Appending to training and testing sets
-		Training.append(tmp_training)
-		Testing.append(tmp_testing)
+		# Appending to training and testing sets in a list to preserve bin structure 
+		Training.append([tmp_training])
+		Testing.append([tmp_testing])
 
 	return Training, Testing
 

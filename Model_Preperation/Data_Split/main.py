@@ -11,7 +11,7 @@ def main():
 	path = ''
 
 	# Splitting the data in prefered in set manner
-	split_data(path, 0.8)
+	split_data(path, 0.8, 0.2)
 
 if __name__ == '__main__':
 	main()
