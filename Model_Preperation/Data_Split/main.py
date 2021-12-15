@@ -7,8 +7,8 @@ from split import *
 
 def main():
 
-	# Path to the array
-	path = ''
+	# Path to the arrays to split
+	path = '/projects/mdhali/BscProjects/Stephan/Sorted_paths/Arrays/'
 
 	# Splitting the data in prefered in set manner
 	split_data(path, 0.8, 0.2)
