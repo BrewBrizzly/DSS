@@ -23,7 +23,7 @@ def create_negative(even, x, y, labels):
 
         # While item i is equal to item j or 
         # length even is equal to length odd
-        while(int(i) != int(j)) and (len(x) != max_len) and j > 0 and i < end:
+        while(int(i) != int(j)) and (len(x) != max_len) and i < j:
 
             # Creating the negative pair
             x.append(even[i])

@@ -11,15 +11,14 @@ def convert_tensor(path_arr1, path_arr2):
 	arr_x = np.load(path_arr1, allow_pickle = True)
 	arr_y = np.load(path_arr2, allow_pickle = True)
 
-	# Creating empty array to store the tensors in 
-	tens_x = np.zeros(len(arr_x))
-	tens_y = np.zeros(len(arr_y))
+	# Creating empty lists to store the tensors in 
+	tens_x = []
+	tens_y = []
 
 	# get the paths of x and y
 	for i in range(len(arr_x)):
 
-		print("X: ", arr_x[i])
-		print("Y: ", arr_y[i])
+		print(i)
 
 		# reading, converting and appending the rgb image of x 
 		img_bgr_x = cv2.imread(arr_x[i])
