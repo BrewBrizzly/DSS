@@ -5,8 +5,8 @@ from pair import *
 
 def main():
 
-	# Path to the array
-	path = ''
+	# Path to the array 
+	path = '/projects/mdhali/BscProjects/Stephan/Model_data/Cutoff_15/Training_validating/'
 
 	# Creating the pairs
 	create_pairs(path)

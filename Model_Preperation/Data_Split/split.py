@@ -39,14 +39,14 @@ def split_data(path, percentage_training, percentage_testing):
 			if os.path.isdir('/projects/mdhali/BscProjects/Stephan/Model_data/' + name):
 
 				# Saving the training and testing sets
-				np.save('/projects/mdhali/BscProjects/Stephan/Model_data/' + name + '/Training_validating /Training-Validation.npy', Training, allow_pickle = True)
+				np.save('/projects/mdhali/BscProjects/Stephan/Model_data/' + name + '/Training_validating/Training-Validation.npy', Training, allow_pickle = True)
 				np.save('/projects/mdhali/BscProjects/Stephan/Model_data/' + name + '/Testing/Testing.npy', Testing, allow_pickle = True)
 			
 			# Create the dirs and save
 			else:
 
-				os.makedirs('/projects/mdhali/BscProjects/Stephan/Model_data/' + name + '/Training_validating /')
-				np.save('/projects/mdhali/BscProjects/Stephan/Model_data/' + name + '/Training_validating /Training-Validation.npy', Training, allow_pickle = True)
+				os.makedirs('/projects/mdhali/BscProjects/Stephan/Model_data/' + name + '/Training_validating/')
+				np.save('/projects/mdhali/BscProjects/Stephan/Model_data/' + name + '/Training_validating/Training-Validation.npy', Training, allow_pickle = True)
 
 				os.makedirs('/projects/mdhali/BscProjects/Stephan/Model_data/' + name + '/Testing/')
 				np.save('/projects/mdhali/BscProjects/Stephan/Model_data/' + name + '/Testing/Testing.npy', Testing, allow_pickle = True)
