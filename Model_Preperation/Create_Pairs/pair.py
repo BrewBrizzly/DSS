@@ -57,8 +57,11 @@ def create_positive(arr, x, y, labels, even):
             # If even 
             if (index % 2) == 0:
 
-                # extending fragment's tensors to even list 
-                even.extend(fragment)
+                # Ensure order
+                for path in fragment:
+
+                    # extending fragment's tensors to even list 
+                    even.append(path)
 
             # If odd
             else:

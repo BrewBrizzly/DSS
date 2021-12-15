@@ -5,44 +5,47 @@ import tensorflow as tf
 import numpy as np 
 import cv2
 
+def convert_tensor(path_arr1, path_arr2):
 
-def convert_tensor(path_arr):
+	# Loading the x and y array
+	arr_x = np.load(path_arr1, allow_pickle = True)
+	arr_y = np.load(path_arr2, allow_pickle = True)
 
-	# Loading the array
-	arr = np.load(path_arr)
+	# Creating empty array to store the tensors in 
+	tens_x = np.zeros(len(arr_x))
+	tens_y = np.zeros(len(arr_y))
 
-	# List to store the tensors
-	tensor_ls = []
+	# get the paths of x and y
+	for i in range(len(arr_x)):
 
-	# get the paths 
-	for bin_number in arr:
+		print("X: ", arr_x[i])
+		print("Y: ", arr_y[i])
 
-		# tmp ls for bin 
-		tmp_bin = []
+		# reading, converting and appending the rgb image of x 
+		img_bgr_x = cv2.imread(arr_x[i])
+		img_rgb_x = cv2.cvtColor(img_bgr_x, cv2.COLOR_BGR2RGB)
+		img_tensor_x = tf.convert_to_tensor(img_rgb_x, dtype = tf.float32)
 
-		for fragment in bin_number:
+		tens_x.append(img_tensor_x)
 
-			# tmp for fragment
-			tmp_fragment = [] 
+		# reading, converting and appending the rgb image of y
+		img_bgr_y = cv2.imread(arr_y[i])
+		img_rgb_y = cv2.cvtColor(img_bgr_y, cv2.COLOR_BGR2RGB)
+		img_tensor_y = tf.convert_to_tensor(img_rgb_y, dtype = tf.float32)
 
-			for path in fragment:
+		tens_y.append(img_tensor_y)
+	
+	# Confirmation
+	print("Len x: ", len(arr_x))
+	print("Len tensors x: ", len(tens_x))
 
-				# reading the rgb image
-				img_bgr = cv2.imread(path)
-				img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+	print("Len y: ", len(arr_y))
+	print("Len tensors y: ", len(tens_y))
 
-				# converting to tensor 
-				img_tensor = tf.convert_to_tensor(img_rgb, dtype = tf.float32)
+	# Saving the arrays of tensors
+	np.save('/projects/mdhali/BscProjects/Stephan/Model_data/Paths_15/Training_validating/Paired_Converted/tensors_x.npy', tens_x, allow_pickle = True)
+	np.save('/projects/mdhali/BscProjects/Stephan/Model_data/Paths_15/Training_validating/Paired_Converted/tensors_y.npy', tens_y, allow_pickle = True)
 
-				# Append to fragment list
-				tmp_fragment.append(img_tensor)
 
-			# Append to bin list 
-			tmp_bin.append(tmp_fragment)
 
-		# Append bin to tensor list
-		tensor_ls.append(tmp_bin)
-
-	# Saving the converted tensors
-	np.save('Tensors.npy', tensor_ls)
 
