@@ -15,6 +15,9 @@ def convert_tensor(path_arr1, path_arr2):
 	tens_x = []
 	tens_y = []
 
+	# Count to keep track of arrays created
+	cnt = 0
+
 	# get the paths of x and y
 	for i in range(len(arr_x)):
 
@@ -33,17 +36,29 @@ def convert_tensor(path_arr1, path_arr2):
 		img_tensor_y = tf.convert_to_tensor(img_rgb_y, dtype = tf.float32)
 
 		tens_y.append(img_tensor_y)
+
+		# Preserving system memory
+		if ((i % 2500 == 0) and (i > 0)) or i == (len(arr_x) - 1):
+
+			# Confirmation
+			print("Len x: ", len(arr_x))
+			print("Len tensors x: ", len(tens_x))
+
+			print("Len y: ", len(arr_y))
+			print("Len tensors y: ", len(tens_y))
+
+			# Saving the arrays of tensors
+			np.save('/projects/mdhali/BscProjects/Stephan/Model_data/Paths_15/Training_validating/Paired_Converted/tensors_x_' + str(cnt) + '.npy', tens_x, allow_pickle = True)
+			np.save('/projects/mdhali/BscProjects/Stephan/Model_data/Paths_15/Training_validating/Paired_Converted/tensors_y_' + str(cnt) + '.npy', tens_y, allow_pickle = True)
+
+			# Clearing the tensor arrays
+			tens_x.clear()
+			tens_y.clear()
+
+			# Increasing cnt 
+			cnt += 1
 	
-	# Confirmation
-	print("Len x: ", len(arr_x))
-	print("Len tensors x: ", len(tens_x))
 
-	print("Len y: ", len(arr_y))
-	print("Len tensors y: ", len(tens_y))
-
-	# Saving the arrays of tensors
-	np.save('/projects/mdhali/BscProjects/Stephan/Model_data/Paths_15/Training_validating/Paired_Converted/tensors_x.npy', tens_x, allow_pickle = True)
-	np.save('/projects/mdhali/BscProjects/Stephan/Model_data/Paths_15/Training_validating/Paired_Converted/tensors_y.npy', tens_y, allow_pickle = True)
 
 
 
