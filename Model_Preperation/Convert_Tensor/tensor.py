@@ -4,59 +4,113 @@
 import tensorflow as tf 
 import numpy as np 
 import cv2
+import os 
 
-def convert_tensor(path_arr1, path_arr2):
+def convert_tensor(path):
 
-	# Loading the x and y array
-	arr_x = np.load(path_arr1, allow_pickle = True)
-	arr_y = np.load(path_arr2, allow_pickle = True)
+	# Creating the desired dir structure positive
+	os.mkdirs('dir/Positive/A/')
+	os.mkdirs('dir/Positive/B/')
 
-	# Creating empty lists to store the tensors in 
-	tens_x = []
-	tens_y = []
+	# Creating the desired negative dir structure 
+	os.mkdirs('dir/Negative/A/')
+	os.mkdirs('dir/Negative/B/')
 
-	# Count to keep track of arrays created
-	cnt = 0
 
-	# get the paths of x and y
-	for i in range(len(arr_x)):
+	# Looping through the positive and negative dir
+	for label_dir in os.listdir(path):
 
-		print(i)
+		label_path = os.path.join(path, label_dir)
 
-		# reading, converting and appending the rgb image of x 
-		img_bgr_x = cv2.imread(arr_x[i])
-		img_rgb_x = cv2.cvtColor(img_bgr_x, cv2.COLOR_BGR2RGB)
-		img_tensor_x = tf.convert_to_tensor(img_rgb_x, dtype = tf.float32)
+		# If positive dir 
+		if label_dir == 'Positive':
 
-		tens_x.append(img_tensor_x)
+			# First looping through the positive RGBS
+			for directory_name in os.listdir(path_p):
 
-		# reading, converting and appending the rgb image of y
-		img_bgr_y = cv2.imread(arr_y[i])
-		img_rgb_y = cv2.cvtColor(img_bgr_y, cv2.COLOR_BGR2RGB)
-		img_tensor_y = tf.convert_to_tensor(img_rgb_y, dtype = tf.float32)
+				directory_path = os.path.join(path_p, directory_name)
 
-		tens_y.append(img_tensor_y)
+				# If A
+				if directory_name == 'A':
 
-		# Preserving system memory
-		if ((i % 2500 == 0) and (i > 0)) or i == (len(arr_x) - 1):
+					# Looping through all images in A and B
+					for image_name in directory_path:
 
-			# Confirmation
-			print("Len x: ", len(arr_x))
-			print("Len tensors x: ", len(tens_x))
+						# Image path
+						image_path = os.path.join(directory_path, image_name)
 
-			print("Len y: ", len(arr_y))
-			print("Len tensors y: ", len(tens_y))
+						# reading, converting and appending the rgb image of x 
+						img_bgr_x = cv2.imread(image_path)
+						img_rgb_x = cv2.cvtColor(img_bgr_x, cv2.COLOR_BGR2RGB)
+						img_tensor_x = tf.convert_to_tensor(img_rgb_x, dtype = tf.float32)
 
-			# Saving the arrays of tensors
-			np.save('/projects/mdhali/BscProjects/Stephan/Model_data/Paths_15/Training_validating/Paired_Converted/tensors_x_' + str(cnt) + '.npy', tens_x, allow_pickle = True)
-			np.save('/projects/mdhali/BscProjects/Stephan/Model_data/Paths_15/Training_validating/Paired_Converted/tensors_y_' + str(cnt) + '.npy', tens_y, allow_pickle = True)
+						# Saving
+						np.save('dir/Positive/A/', img_tensor_x)
 
-			# Clearing the tensor arrays
-			tens_x.clear()
-			tens_y.clear()
+				# If B
+				else:
 
-			# Increasing cnt 
-			cnt += 1
+					# Looping through all images in A and B
+					for image_name in directory_path:
+
+						# Image path
+						image_path = os.path.join(directory_path, image_name)
+
+						# reading, converting and appending the rgb image of x 
+						img_bgr_x = cv2.imread(image_path)
+						img_rgb_x = cv2.cvtColor(img_bgr_x, cv2.COLOR_BGR2RGB)
+						img_tensor_x = tf.convert_to_tensor(img_rgb_x, dtype = tf.float32)
+
+						# Saving
+						np.save('dir/Positive/B/', img_tensor_x)
+
+
+		# If negative dir 
+		if label_dir == 'Negative':
+
+			# First looping through the positive RGBS
+			for directory_name in os.listdir(path_p):
+
+				directory_path = os.path.join(path_p, directory_name)
+
+				# If A
+				if directory_name == 'A':
+
+					# Looping through all images in A and B
+					for image_name in directory_path:
+
+						# Image path
+						image_path = os.path.join(directory_path, image_name)
+
+						# reading, converting and appending the rgb image of x 
+						img_bgr_x = cv2.imread(image_path)
+						img_rgb_x = cv2.cvtColor(img_bgr_x, cv2.COLOR_BGR2RGB)
+						img_tensor_x = tf.convert_to_tensor(img_rgb_x, dtype = tf.float32)
+
+						# Saving
+						np.save('dir/Negative/A/', img_tensor_x)
+
+
+				# If B
+				else:
+
+					# Looping through all images in A and B
+					for image_name in directory_path:
+
+						# Image path
+						image_path = os.path.join(directory_path, image_name)
+
+						# reading, converting and appending the rgb image of x 
+						img_bgr_x = cv2.imread(image_path)
+						img_rgb_x = cv2.cvtColor(img_bgr_x, cv2.COLOR_BGR2RGB)
+						img_tensor_x = tf.convert_to_tensor(img_rgb_x, dtype = tf.float32)
+
+						# Saving
+						np.save('dir/Negative/B/', img_tensor_x)
+
+
+# Why not use tf.keras.utils.image_dataset_from_directory
+
 	
 
 

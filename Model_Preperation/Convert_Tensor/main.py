@@ -1,18 +1,12 @@
-# Convert the array of paths to array 
-# of tensors
-
-# Required library
-from tensor import *
-
+# Convert the RGB to Tensors 
 
 def main():
 
-	# Paths of array to be converted
-	pathx = '/projects/mdhali/BscProjects/Stephan/Model_data/Paths_15/Training_validating/Paired/input_x.npy'
-	pathy = '/projects/mdhali/BscProjects/Stephan/Model_data/Paths_15/Training_validating/Paired/input_y.npy'
+	# Paths of RGB images to be converted
+	path = ''
 
-	# Converting paths to tensors 
-	convert_tensor(pathx, pathy)
+	# Converting RGB images to tensors 
+	convert_tensor(path)
 
 
 if __name__ == '__main__':
