@@ -1,9 +1,4 @@
-# Creatign a dir structure for positive
-# and negative pairs and copying the files to those
-# dirs.
-# So there is a Postive dir containing a Dir A of the pair
-# and a dir B of the pair, and there is a negative dir 
-# containing a Dir A of the pair and a Dir B of the pair. 
+# Script for storing images in the desired dir struct 
 
 # Required libraries
 from dir_strc import * 
@@ -15,10 +10,9 @@ def main():
 	# structure and the paths
 	arr1_path = '/projects/mdhali/BscProjects/Stephan/Paths/Sorted_Paths_Split_Paired/Cutoff_15/Training_Validating/Paired/input_x.npy'
 	arr2_path = '/projects/mdhali/BscProjects/Stephan/Paths/Sorted_Paths_Split_Paired/Cutoff_15/Training_Validating/Paired/input_y.npy'
-	lbl_path = '/projects/mdhali/BscProjects/Stephan/Paths/Sorted_Paths_Split_Paired/Cutoff_15/Training_Validating/Paired/labels.npy'
 
 	# Creating the dir structure and storing the RGB images
-	create_dir(arr1_path, arr2_path, lbl_path)
+	create_dir(arr1_path, arr2_path)
 
 
 if __name__ == '__main__':
