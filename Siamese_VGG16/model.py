@@ -2,6 +2,7 @@
 
 from VGG16 import *
 from utils import * 
+import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Input
@@ -36,13 +37,74 @@ def build_Siamese_network(inputShape):
 	outputs = Dense(1, activation="sigmoid", name = 'block6_dense3')(x)
 
 	# building the complete model 
-	model = Model(inputs=[CNNTop, CNNBottom], outputs=outputs)	
+	model = Model(inputs=[sister1, sister2], outputs=outputs)	
 
-	print("test")
+	return model
 
-	# Summary of the complete model 
-	model.Summary()
 
-print("Running")
-build_VGG16_network((256, 256, 3))
-print("Finished")
+# Building the left and right dataset
+def build_data(dir_A, dir_B):
+
+	# Load A and B dataset
+
+	train_ds_A = tf.keras.utils.image_dataset_from_directory(directory = dir_A, labels = None, label_mode = None, shuffle = True, seed = 32, batch_size = 16)
+	train_ds_B = tf.keras.utils.image_dataset_from_directory(directory = dir_B, labels = None, label_mode = None, shuffle = True, seed = 32, batch_size = 16)
+
+	# Check if the order is still correct 
+
+	A_paths = train_ds_A.file_paths
+	B_paths = train_ds_B.file_paths
+
+	print(A_paths[0:2])
+	print(B_paths[0:2])
+
+	# Divide everything by 255 since RGB 
+	train_ds_A.map(lambda x: x/255)
+	train_ds_B.map(lambda x: x/255)
+
+	# Building the labels 
+	labels = build_labels(A_paths)
+
+	return train_ds_A, train_ds_B, labels
+
+
+# Build labels
+def build_labels(A_paths):
+
+	# Now create the label list 
+
+	labels = []
+
+	for path in A_paths:
+
+		splitted = path.split('.jpg')
+		splitted = splitted[0]
+		if(splitted[-1]) == 'P':
+			labels.append(1)
+		else:
+			labels.append(0)
+
+
+
+# Builds the data and model to train it 
+def train(Dir_A, Dir_B):
+
+	# Settings for GPU, and a check
+	phy_dev = tf.config.experimental.list_physical_devices('GPU')
+	print("Num gpu: ", len(phy_dev))
+	tf.config.experimental.set_memory_growth(phy_dev[0], True)
+
+	# Getting the dataset into Tensorflow format 
+	left_ds, right_ds, labels = build_data(Dir_A, Dir_B)
+
+	# Building the model with the dimensions of a patch
+	model = build_Siamese_network(256, 256, 3)
+
+	# Training the model
+	model.fit([left_ds, right_ds], labels)
+
+
+
+
+
+
