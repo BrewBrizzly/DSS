@@ -24,7 +24,7 @@ def build_Siamese_network(inputShape):
 	# Configuring a VGG16 model based on the input shape 
 	VGG16 = build_VGG16_network(inputShape)
 
-	# Building the two sisters layers by connecting the input layers and the VGG16
+	# Building the two sisters layers by combining the input layers and the VGG16
 	sister1 = VGG16(input1)
 	sister2 = VGG16(input2)
 
@@ -58,9 +58,10 @@ def build_data(dir_A, dir_B):
 	print(A_paths[0:2])
 	print(B_paths[0:2])
 
-	# Divide everything by 255 since RGB 
-	train_ds_A.map(lambda x: x/255)
-	train_ds_B.map(lambda x: x/255)
+	# Scaling the data 
+	normalize_layer = tf.keras.layers.Rescaling(1./255)
+	train_ds_A = train_ds_A.map(lambda x: normalize_layer(x))
+	train_ds_B = train_ds_B.map(lambda x: normalize_layer(x))
 
 	# Building the labels 
 	labels = build_labels(A_paths)
@@ -83,6 +84,8 @@ def build_labels(A_paths):
 			labels.append(1)
 		else:
 			labels.append(0)
+	
+	return labels
 
 
 
@@ -97,11 +100,28 @@ def train(Dir_A, Dir_B):
 	# Getting the dataset into Tensorflow format 
 	left_ds, right_ds, labels = build_data(Dir_A, Dir_B)
 
-	# Building the model with the dimensions of a patch
-	model = build_Siamese_network(256, 256, 3)
+	# Confirmation of total data
+	print("Each struct has length: ", len(labels))
 
-	# Training the model
-	model.fit([left_ds, right_ds], labels)
+	# Building the model with the dimensions of a patch
+	model = build_Siamese_network((256, 256, 3))
+
+	# Summary of the model as confirmation
+	model.summary()
+
+	# Compiling the model, default adam learning rate is 0.001
+	model.compile(loss = "binary_crossentropy", optimizer = "adam", metrics = ["accuracy"])
+
+	# Training the model, epochs 100 set similar to paper, for test to 10 
+	model.fit(x = [left_ds, right_ds], y = labels) # y = labels, epochs = 10, validation_split = 0.2)
+
+	# Saving the model after training 
+	hist = model.save('/projects/mdhali/BscProjects/Stephan/Model/')
+
+	# Printing the history
+	print(hist)
+
+
 
 
 

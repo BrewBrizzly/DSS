@@ -8,9 +8,9 @@ from model import *
 def main():
     dir_A = '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training-Validation/A/'
     dir_B = '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training-Validation/B/'
-
+    train(dir_A, dir_B)
 
 
 if __name__ == '__main__':
 
-    def main()
+    main()
