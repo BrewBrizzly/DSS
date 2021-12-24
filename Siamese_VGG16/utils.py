@@ -2,7 +2,6 @@
 # Euclidian distance code is used from https://www.pyimagesearch.com/2020/11/30/siamese-networks-with-keras-tensorflow-and-deep-learning/
 
 import tensorflow.keras.backend as K
-import matplotlib.pyplot as plt
 
 def euclidean_distance(vectors):
 	# unpack the vectors into separate lists

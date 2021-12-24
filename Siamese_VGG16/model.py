@@ -2,12 +2,13 @@
 
 from VGG16 import *
 from utils import * 
+import numpy as np
 import tensorflow as tf
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Input
-from tensorflow.keras.layers import Lambda
-from tensorflow.keras.datasets import mnist
+from tensorflow import keras
+# from tensorflow.keras.models import Model
+# from tensorflow.keras.layers import Dense
+# from tensorflow.keras.layers import Input
+# from tensorflow.keras.layers import Lambda
 
 # Just disables the warning, doesn't take advantage of AVX/FMA to run faster
 # import os
@@ -15,29 +16,29 @@ from tensorflow.keras.datasets import mnist
 
 # Function that connects two CNNS via a ECL layer
 # which is connected to a block of dense layers 
-def build_Siamese_network(inputShape):
+def build_Siamese_network():
 
 	# Configuring input layers for each sister
-	input1 = Input(shape = inputShape)
-	input2 = Input(shape = inputShape)
+	Input_Image_A = Input(name = 'Image_A', shape = (256, 256, 3))
+	Input_Image_B = Input(name = 'Image_B', shape = (256, 256, 3))
 
-	# Configuring a VGG16 model based on the input shape 
-	VGG16 = build_VGG16_network(inputShape)
+	# Defining the VGG16
+	VGG16 = build_VGG16_network()
 
-	# Building the two sisters layers by combining the input layers and the VGG16
-	sister1 = VGG16(input1)
-	sister2 = VGG16(input2)
+	# Connecting each image to VGG16
+	VGG16_A = VGG16(Input_Image_A)
+	VGG16_B = VGG16(Input_Image_B)
 
-	# Connecting the Sister layers to lambda euclidian distance layer 
-	distance = Lambda(euclidean_distance)([sister1, sister2])
+	# Connecting the each layer to lambda euclidian distance layer 
+	distance = keras.layers.Lambda(euclidean_distance)([VGG16_A, VGG16_B])
 
 	# Creating the final dense layers 
-	x = Dense(512, activation="relu", name = 'block6_dense1')(distance)
-	x = Dense(512, activation="relu", name = 'block6_dense2')(x)
-	outputs = Dense(1, activation="sigmoid", name = 'block6_dense3')(x)
+	x = keras.layers.Dense(512, activation="relu", name = 'block6_dense1')(distance)
+	x = keras.layers.Dense(512, activation="relu", name = 'block6_dense2')(x)
+	outputs = keras.layers.Dense(1, activation="sigmoid", name = 'block6_dense3')(x)
 
 	# building the complete model 
-	model = Model(inputs=[sister1, sister2], outputs=outputs)	
+	model = Model(inputs=[Input_Image_A, Input_Image_B], outputs=outputs, name = 'Siame_Network')	
 
 	return model
 
@@ -85,7 +86,7 @@ def build_labels(A_paths):
 		else:
 			labels.append(0)
 	
-	return labels
+	return np.array(labels)
 
 
 
@@ -104,7 +105,7 @@ def train(Dir_A, Dir_B):
 	print("Each struct has length: ", len(labels))
 
 	# Building the model with the dimensions of a patch
-	model = build_Siamese_network((256, 256, 3))
+	model = build_Siamese_network()
 
 	# Summary of the model as confirmation
 	model.summary()
@@ -113,7 +114,7 @@ def train(Dir_A, Dir_B):
 	model.compile(loss = "binary_crossentropy", optimizer = "adam", metrics = ["accuracy"])
 
 	# Training the model, epochs 100 set similar to paper, for test to 10 
-	model.fit(x = [left_ds, right_ds], y = labels) # y = labels, epochs = 10, validation_split = 0.2)
+	model.fit([left_ds, right_ds], labels) # y = labels, epochs = 10, validation_split = 0.2)
 
 	# Saving the model after training 
 	hist = model.save('/projects/mdhali/BscProjects/Stephan/Model/')

@@ -6,9 +6,9 @@ from tensorflow.keras.layers import Conv2D
 from tensorflow.keras.layers import MaxPooling2D
 from tensorflow.keras.layers import Flatten
 
-def build_VGG16_network(inputShape):
+def build_VGG16_network():
 	# initializing the input layer
-	inputs = Input(inputShape)
+	inputs = Input(name = 'input', shape = (256,256,3))
 
 	# define the first block of CONV => CONV => POOL layers
 	x = Conv2D(name = 'block1_conv1', filters = 64, kernel_size = (3,3), padding = "same", activation = "relu")(inputs)
@@ -42,7 +42,7 @@ def build_VGG16_network(inputShape):
 	outputs = Flatten()(x)
 
 	# build the model
-	model = Model(inputs, outputs)
+	model = Model(inputs = inputs, outputs = outputs, name = 'VGG16')
 
 	return model 
 
