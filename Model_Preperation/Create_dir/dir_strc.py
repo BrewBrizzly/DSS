@@ -20,38 +20,84 @@ def create_dir(arr1_path, arr2_path, label_path):
 	# Looping through the first arr
 	for path1, path2, label in zip(arr1, arr2, labels):
 
-		# if positive pair
-		if int(label): 
+		# Setting the format 
+		exp = 1
 
-			try:
-				shutil.copy(path1, '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training-Validation/A/' + str(cnt_p) + 'P.jpg')
-				shutil.copy(path2, '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training-Validation/B/' + str(cnt_p) + 'P.jpg')
+		# Building conventional dir 
+		if not exp:
 
-				# Increase cnt
-				cnt_p += 1
+			# if positive pair
+			if int(label): 
 
-			except PermissionError:
+				try:
+					shutil.copy(path1, '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training-Validation/A/' + str(cnt_p) + 'P.jpg')
+					shutil.copy(path2, '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training-Validation/B/' + str(cnt_p) + 'P.jpg')
 
-				print('Permission error')
+					# Increase cnt
+					cnt_p += 1
+
+				except PermissionError:
+
+					print('Permission error')
+				
+				except:
+
+					print('error')
 			
-			except:
+			# If negative pair
+			else:
 
-				print('error')
-		
-		# If negative pair
-		else:
+				try:
+					shutil.copy(path1, '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training-Validation/A/' + str(cnt_n) + 'N.jpg')
+					shutil.copy(path2, '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training-Validation/B/' + str(cnt_n) + 'N.jpg')
 
-			try:
-				shutil.copy(path1, '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training-Validation/A/' + str(cnt_n) + 'N.jpg')
-				shutil.copy(path2, '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training-Validation/B/' + str(cnt_n) + 'N.jpg')
+					# Increase cnt
+					cnt_n += 1
 
-				# Increase cnt
-				cnt_n += 1
+				except PermissionError:
 
-			except PermissionError:
+					print('Permission error')
+				
+				except:
 
-				print('Permission error')
+					print('error')
+
+		# Building experimental dir strc 
+		else: 
+
+			# if positive pair
+			if int(label): 
+
+				try:
+					shutil.copy(path1, '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15_exp/Training/Positive/A/' + str(cnt_p) + 'P.jpg')
+					shutil.copy(path2, '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15_exp/Training/Positive/B/' + str(cnt_p) + 'P.jpg')
+
+					# Increase cnt
+					cnt_p += 1
+
+				except PermissionError:
+
+					print('Permission error')
+				
+				except:
+
+					print('error')
 			
-			except:
+			# If negative pair
+			else:
 
-				print('error')
+				try:
+					shutil.copy(path1, '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15_exp/Training/Negative/A/' + str(cnt_n) + 'N.jpg')
+					shutil.copy(path2, '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15_exp/Training/Negative/B/' + str(cnt_n) + 'N.jpg')
+
+					# Increase cnt
+					cnt_n += 1
+
+				except PermissionError:
+
+					print('Permission error')
+				
+				except:
+
+					print('error')
+

@@ -5,14 +5,6 @@ from utils import *
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
-# from tensorflow.keras.models import Model
-# from tensorflow.keras.layers import Dense
-# from tensorflow.keras.layers import Input
-# from tensorflow.keras.layers import Lambda
-
-# Just disables the warning, doesn't take advantage of AVX/FMA to run faster
-# import os
-# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Function that connects two CNNS via a ECL layer
 # which is connected to a block of dense layers 
