@@ -2,117 +2,182 @@
 
 from VGG16 import *
 from utils import * 
+import os 
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
+from tensorflow.keras.metrics import Precision, Recall
 
 # Function that connects two CNNS via a ECL layer
 # which is connected to a block of dense layers 
 def build_Siamese_network():
 
-	# Configuring input layers for each sister
-	Input_Image_A = Input(name = 'Image_A', shape = (256, 256, 3))
-	Input_Image_B = Input(name = 'Image_B', shape = (256, 256, 3))
+    # Configuring input layers for each sister
+    Input_Image_A = Input(name = 'Image_A', shape = (256, 256, 3))
+    Input_Image_B = Input(name = 'Image_B', shape = (256, 256, 3))
 
-	# Defining the VGG16
-	VGG16 = build_VGG16_network()
+    # Defining the VGG16
+    VGG16 = build_VGG16_network()
 
-	# Connecting each image to VGG16
-	VGG16_A = VGG16(Input_Image_A)
-	VGG16_B = VGG16(Input_Image_B)
+    # Connecting each image to VGG16
+    VGG16_A = VGG16(Input_Image_A)
+    VGG16_B = VGG16(Input_Image_B)
 
-	# Connecting the each layer to lambda euclidian distance layer 
-	distance = keras.layers.Lambda(euclidean_distance)([VGG16_A, VGG16_B])
+    # Connecting the each layer to lambda euclidian distance layer 
+    distance = keras.layers.Lambda(euclidean_distance)([VGG16_A, VGG16_B])
 
-	# Creating the final dense layers 
-	x = keras.layers.Dense(512, activation="relu", name = 'block6_dense1')(distance)
-	x = keras.layers.Dense(512, activation="relu", name = 'block6_dense2')(x)
-	outputs = keras.layers.Dense(1, activation="sigmoid", name = 'block6_dense3')(x)
+    # Creating the final dense layers 
+    x = keras.layers.Dense(512, activation="relu", name = 'block6_dense1')(distance)
+    x = keras.layers.Dense(512, activation="relu", name = 'block6_dense2')(x)
+    outputs = keras.layers.Dense(1, activation="sigmoid", name = 'block6_dense3')(x)
 
-	# building the complete model 
-	model = Model(inputs=[Input_Image_A, Input_Image_B], outputs=outputs, name = 'Siame_Network')	
+    # building the complete model 
+    model = Model(inputs=[Input_Image_A, Input_Image_B], outputs=outputs, name = 'Siame_Network')	
 
-	return model
+    return model
+
+
+# Normalizing pixel values, no need for scaling 
+def preprocess_img(path):
+
+    # Read the image
+    byte = tf.io.read_file(path)
+
+    # Load the image 
+    img = tf.io.decode_jpeg(byte)
+
+    # Normalized image
+    img = img / np.uint8(255.0)
+
+    return img 
+
+# Process the pairs 
+def process_pairs(a, b, label):
+    return (preprocess_img(a), preprocess_img(b), label)
 
 
 # Building the left and right dataset
-def build_data(dir_A, dir_B):
+def build_data(Path_Positive_A, Path_Positive_B, Path_Negative_A, Path_Negative_B):
 
-	# Load A and B dataset
+    # Getting the filenames for the positive pair, in same order 
+    P_a = tf.data.Dataset.list_files(Path_Positive_A, shuffle = True, seed = 24)
+    P_b = tf.data.Dataset.list_files(Path_Positive_B, shuffle = True, seed = 24)
 
-	train_ds_A = tf.keras.utils.image_dataset_from_directory(directory = dir_A, labels = None, label_mode = None, shuffle = True, seed = 32, batch_size = 16)
-	train_ds_B = tf.keras.utils.image_dataset_from_directory(directory = dir_B, labels = None, label_mode = None, shuffle = True, seed = 32, batch_size = 16)
+    # Getting the directories for the negative pair, in same order 
+    N_a = tf.data.Dataset.list_files(Path_Negative_A, shuffle = True, seed = 24)
+    N_b = tf.data.Dataset.list_files(Path_Negative_B, shuffle = True, seed = 24)
 
-	# Check if the order is still correct 
+    # Creating the positive pair
+    P_pair = tf.data.Dataset.zip((P_a, P_b, tf.data.Dataset.from_tensor_slices(tf.ones(len(P_a)))))
 
-	A_paths = train_ds_A.file_paths
-	B_paths = train_ds_B.file_paths
+    # Creating the negative pair 
+    N_pair = tf.data.Dataset.zip((N_a, N_b, tf.data.Dataset.from_tensor_slices(tf.zeros(len(N_a)))))
 
-	print(A_paths[0:2])
-	print(B_paths[0:2])
+    # Creating the overall dataset
+    dataset = P_pair.concatenate(N_pair)
 
-	# Scaling the data 
-	normalize_layer = tf.keras.layers.Rescaling(1./255)
-	train_ds_A = train_ds_A.map(lambda x: normalize_layer(x))
-	train_ds_B = train_ds_B.map(lambda x: normalize_layer(x))
+    # Processing the dataset
+    dataset = dataset.map(process_pairs)
 
-	# Building the labels 
-	labels = build_labels(A_paths)
+    # Caching for performance 
+    dataset = dataset.cache()
 
-	return train_ds_A, train_ds_B, labels
+    # Shuffling for performance in training
+    dataset = dataset.shuffle(buffer_size = 1024)
+
+    # Batching the dataset for prefenting bottleneck 
+    dataset = dataset.batch(16) 
+
+    # Prefetching for performance 
+    dataset = dataset.prefetch(8)
+
+    return dataset
 
 
-# Build labels
-def build_labels(A_paths):
+# From https://github.com/nicknochnack/FaceRecognition/blob/main/Facial%20Verification%20with%20a%20Siamese%20Network%20-%20Final.ipynb
+@tf.function
+def train_step(siamese_model, batch, binary_cross_loss, opt):
+    
+    # Record all of our operations 
+    with tf.GradientTape() as tape:     
+        # Get anchor and positive/negative image
+        X = batch[:2]
+        # Get label
+        y = batch[2]
+        
+        # Forward pass
+        yhat = siamese_model(X, training=True)
+        # Calculate loss
+        loss = binary_cross_loss(y, yhat)
 
-	# Now create the label list 
+    print(loss)
+        
+    # Calculate gradients
+    grad = tape.gradient(loss, siamese_model.trainable_variables)
+    
+    # Calculate updated weights and apply to siamese model
+    opt.apply_gradients(zip(grad, siamese_model.trainable_variables))
+        
+    # Return loss
+    return loss
 
-	labels = []
 
-	for path in A_paths:
-
-		splitted = path.split('.jpg')
-		splitted = splitted[0]
-		if(splitted[-1]) == 'P':
-			labels.append(1)
-		else:
-			labels.append(0)
-	
-	return np.array(labels)
-
+# From https://github.com/nicknochnack/FaceRecognition/blob/main/Facial%20Verification%20with%20a%20Siamese%20Network%20-%20Final.ipynb
+def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_loss, opt, EPOCHS):
+    # Loop through epochs
+    for epoch in range(1, EPOCHS+1):
+        print('\n Epoch {}/{}'.format(epoch, EPOCHS))
+        progbar = tf.keras.utils.Progbar(len(dataset))
+        
+        # Creating a metric object 
+        r = Recall()
+        p = Precision()
+        
+        # Loop through each batch
+        for idx, batch in enumerate(dataset):
+            # Run train step here
+            loss = train_step(siamese_model, batch, binary_cross_loss, opt)
+            yhat = siamese_model.predict(batch[:2])
+            r.update_state(batch[2], yhat)
+            p.update_state(batch[2], yhat) 
+            progbar.update(idx+1)
+        print(loss.numpy(), r.result().numpy(), p.result().numpy())
+        
+        # Save checkpoints
+        if epoch % 10 == 0: 
+            checkpoint.save(file_prefix=checkpoint_prefix)
+    
+    # Save weights
+    siamese_model.save('VGG16.h5')
 
 
 # Builds the data and model to train it 
-def train(Dir_A, Dir_B):
+def run_model(A1, B1, A0, B0):
 
-	# Settings for GPU, and a check
-	phy_dev = tf.config.experimental.list_physical_devices('GPU')
-	print("Num gpu: ", len(phy_dev))
-	tf.config.experimental.set_memory_growth(phy_dev[0], True)
+    # Settings for GPU, and a check
+    phy_dev = tf.config.experimental.list_physical_devices('GPU')
+    print("Num gpu: ", len(phy_dev))
+    tf.config.experimental.set_memory_growth(phy_dev[0], True)
 
-	# Getting the dataset into Tensorflow format 
-	left_ds, right_ds, labels = build_data(Dir_A, Dir_B)
+    # Getting the dataset into Tensorflow format 
+    dataset = build_data(A1, B1, A0, B0)
 
-	# Confirmation of total data
-	print("Each struct has length: ", len(labels))
+    # Building the model with the dimensions of a patch
+    siamese_model = build_Siamese_network()
 
-	# Building the model with the dimensions of a patch
-	model = build_Siamese_network()
+    # Summary of the model as confirmation
+    siamese_model.summary()
 
-	# Summary of the model as confirmation
-	model.summary()
+    # Below comes from: https://github.com/nicknochnack/FaceRecognition/blob/main/Facial%20Verification%20with%20a%20Siamese%20Network%20-%20Final.ipynb
+    binary_cross_loss = tf.losses.BinaryCrossentropy()
 
-	# Compiling the model, default adam learning rate is 0.001
-	model.compile(loss = "binary_crossentropy", optimizer = "adam", metrics = ["accuracy"])
+    opt = tf.keras.optimizers.Adam(1e-4) # 0.0001
 
-	# Training the model, epochs 100 set similar to paper, for test to 10 
-	model.fit([left_ds, right_ds], labels) # y = labels, epochs = 10, validation_split = 0.2)
+    checkpoint_dir = './training_checkpoints'
+    checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
+    checkpoint = tf.train.Checkpoint(opt=opt, siamese_model = siamese_model)
 
-	# Saving the model after training 
-	hist = model.save('/projects/mdhali/BscProjects/Stephan/Model/')
-
-	# Printing the history
-	print(hist)
+    train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_loss, opt, 10)
 
 
 
