@@ -143,16 +143,16 @@ def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_lo
     # Loop through each epoch
     for epoch in range(1, EPOCHS + 1):
 
+        # Loading, preprocessing and shuffling the dataset
+        loaded_dataset = load_dataset(dataset, buffer_size)
+
     	# Printing the current status 
         print('\n Epoch {}/{}'.format(epoch, EPOCHS))
-        progbar = tf.keras.utils.Progbar(len(dataset))
+        progbar = tf.keras.utils.Progbar(len(loaded_dataset))
         
         # Creating metric objects
         r = Recall()
         p = Precision()
-
-        # Loading, preprocessing and shuffling the dataset
-        loaded_dataset = load_dataset(dataset, buffer_size)
         
         # Loop through each batch in the dataset 
         for idx, batch in enumerate(loaded_dataset):
