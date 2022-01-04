@@ -76,11 +76,13 @@ def build_data(Path_Positive_A, Path_Positive_B, Path_Negative_A, Path_Negative_
     # Creating the overall dataset
     dataset = P_pair.concatenate(N_pair)
 
+    # Shuffling for performance in training
+    b_size =  len(N_a) * 2
+    print("The complete size of the dataset is: ", b_size)
+    dataset = dataset.shuffle(buffer_size = b_size)
+
     # Processing the dataset
     dataset = dataset.map(process_pairs)
-
-    # Shuffling for performance in training
-    dataset = dataset.shuffle(buffer_size = 2000)
 
     # Batching the dataset for prefenting bottleneck, size according paper
     dataset = dataset.batch(16) 
@@ -125,6 +127,12 @@ def train_step(siamese_model, batch, binary_cross_loss, opt):
 # Training loop that goes through all the epochs set
 def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_loss, opt, EPOCHS):
 
+    # List to keep track of loss over epochs 
+    ls_loss = [] 
+
+    # Setting the patience for the early stop
+    patience = 3 
+
     # Loop through each epoch
     for epoch in range(1, EPOCHS + 1):
 
@@ -156,13 +164,25 @@ def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_lo
 
         # Printing the metrics values after completing a single epoch     
         print(loss.numpy(), r.result().numpy(), p.result().numpy(), a.result().numpy())
-        
+
+        # Append the loss 
+        ls_loss.append(loss.numpy())
+
         # Save weights each time 10 epochs have passed
         if epoch % 10 == 0: 
             checkpoint.save(file_prefix = checkpoint_prefix)
+
+        # If model is not improving then break 
+        if len(ls_loss) > patience: 
+            if ls_loss[-1] >= ls_loss[-patience]:
+                break
     
+
     # Save weights after having completed training 
     siamese_model.save('VGG16.h5')
+
+    # Saving the losses 
+    np.save('VGG16_losses.npy', ls_loss)
 
 
 # Builds the data and model to train it 
@@ -194,7 +214,7 @@ def run_model(A1, B1, A0, B0):
     checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
     checkpoint = tf.train.Checkpoint(opt = opt, siamese_model = siamese_model)
 
-    train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_loss, opt, 10)
+    train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_loss, opt, 5)
 
 
 
