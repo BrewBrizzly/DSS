@@ -170,8 +170,6 @@ def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_lo
             # Update the progress bar 
             progbar.update(idx + 1)
 
-            break
-
         # Printing the metrics values after completing a single epoch     
         print(loss.numpy(), r.result().numpy(), p.result().numpy())
 
