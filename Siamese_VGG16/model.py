@@ -6,7 +6,7 @@ import os
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.metrics import Precision, Recall, Accuracy
+from tensorflow.keras.metrics import Precision, Recall
 
 # Function that connects two CNNS via a eucledian distance layer
 # which is connected to a block of dense layers, the output 
@@ -76,10 +76,17 @@ def build_data(Path_Positive_A, Path_Positive_B, Path_Negative_A, Path_Negative_
     # Creating the overall dataset
     dataset = P_pair.concatenate(N_pair)
 
-    # Shuffling for performance in training
-    b_size =  len(N_a) * 2
-    print("The complete size of the dataset is: ", b_size)
-    dataset = dataset.shuffle(buffer_size = b_size)
+    # Calculating the buffer size 
+    buffer_size = len(N_a) * 2
+
+    return dataset, buffer_size
+
+
+# Loading, preprocessing and shuffling the dataset
+def load_dataset(dataset, buffer_size):
+
+    print("The complete size of the dataset is: ", buffer_size)
+    dataset = dataset.shuffle(buffer_size = buffer_size)
 
     # Processing the dataset
     dataset = dataset.map(process_pairs)
@@ -125,28 +132,31 @@ def train_step(siamese_model, batch, binary_cross_loss, opt):
 
 # From https://github.com/nicknochnack/FaceRecognition/blob/main/Facial%20Verification%20with%20a%20Siamese%20Network%20-%20Final.ipynb
 # Training loop that goes through all the epochs set
-def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_loss, opt, EPOCHS):
+def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_loss, opt, buffer_size, EPOCHS):
 
     # List to keep track of loss over epochs 
     ls_loss = [] 
 
     # Setting the patience for the early stop
-    patience = 3 
+    patience = 10 
+
+    # Loading, preprocessing and shuffling the dataset
+    loaded_dataset = load_dataset(dataset, buffer_size)
+
 
     # Loop through each epoch
     for epoch in range(1, EPOCHS + 1):
 
     	# Printing the current status 
         print('\n Epoch {}/{}'.format(epoch, EPOCHS))
-        progbar = tf.keras.utils.Progbar(len(dataset))
+        progbar = tf.keras.utils.Progbar(len(loaded_dataset))
         
         # Creating metric objects
         r = Recall()
         p = Precision()
-        a = Accuracy()
         
         # Loop through each batch in the dataset 
-        for idx, batch in enumerate(dataset):
+        for idx, batch in enumerate(loaded_dataset):
 
             # Single training step
             loss = train_step(siamese_model, batch, binary_cross_loss, opt)
@@ -157,13 +167,12 @@ def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_lo
             # Update the metrics accordingly 
             r.update_state(batch[2], yhat)
             p.update_state(batch[2], yhat) 
-            a.update_state(batch[2], yhat)
 
             # Update the progress bar 
             progbar.update(idx + 1)
 
         # Printing the metrics values after completing a single epoch     
-        print(loss.numpy(), r.result().numpy(), p.result().numpy(), a.result().numpy())
+        print(loss.numpy(), r.result().numpy(), p.result().numpy())
 
         # Append the loss 
         ls_loss.append(loss.numpy())
@@ -176,7 +185,6 @@ def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_lo
         if len(ls_loss) > patience: 
             if ls_loss[-1] >= ls_loss[-patience]:
                 break
-    
 
     # Save weights after having completed training 
     siamese_model.save('VGG16.h5')
@@ -193,8 +201,8 @@ def run_model(A1, B1, A0, B0):
     print("Num gpu: ", len(phy_dev))
     tf.config.experimental.set_memory_growth(phy_dev[0], True)
 
-    # Preprocessing the data before passing to model 
-    dataset = build_data(A1, B1, A0, B0)
+    # Building the dataset
+    dataset, buffer_size = build_data(A1, B1, A0, B0)
 
     # Building the model with the dimensions according the dataset
     siamese_model = build_Siamese_network()
@@ -208,13 +216,13 @@ def run_model(A1, B1, A0, B0):
     binary_cross_loss = tf.losses.BinaryCrossentropy()
 
     # Initializing the model's optimizer according to the value found in the paper 
-    opt = tf.keras.optimizers.Adam(0.001) 
+    opt = tf.keras.optimizers.Adam(0.0001) 
 
     checkpoint_dir = './training_checkpoints'
     checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
     checkpoint = tf.train.Checkpoint(opt = opt, siamese_model = siamese_model)
 
-    train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_loss, opt, 5)
+    train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_loss, opt, buffer_size, 100)
 
 
 
