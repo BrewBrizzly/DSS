@@ -138,22 +138,21 @@ def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_lo
     ls_loss = [] 
 
     # Setting the patience for the early stop
-    patience = 10 
-
-    # Loading, preprocessing and shuffling the dataset
-    loaded_dataset = load_dataset(dataset, buffer_size)
-
+    patience = 10
 
     # Loop through each epoch
     for epoch in range(1, EPOCHS + 1):
 
     	# Printing the current status 
         print('\n Epoch {}/{}'.format(epoch, EPOCHS))
-        progbar = tf.keras.utils.Progbar(len(loaded_dataset))
+        progbar = tf.keras.utils.Progbar(len(dataset))
         
         # Creating metric objects
         r = Recall()
         p = Precision()
+
+        # Loading, preprocessing and shuffling the dataset
+        loaded_dataset = load_dataset(dataset, buffer_size)
         
         # Loop through each batch in the dataset 
         for idx, batch in enumerate(loaded_dataset):
@@ -170,6 +169,8 @@ def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_lo
 
             # Update the progress bar 
             progbar.update(idx + 1)
+
+            break
 
         # Printing the metrics values after completing a single epoch     
         print(loss.numpy(), r.result().numpy(), p.result().numpy())
