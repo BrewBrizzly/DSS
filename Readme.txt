@@ -1,9 +1,9 @@
-Siamese_VGG16 contains the code for creating and training the Siamese VGG16 model
+1) First, one directs to the Pre_processing directory. This directory contains the code for pre-processing the fragments up, and including, to the point of extracting the patches.
 
-Pre_processing contains the code for pre-processing the fragments 
+2) Second, one directs to the Statistics directory. This directory contains the code and plots for obtaining and visualising the optimal cutoff point. 
 
-Data_processing contains the code for processing the data 
+3) Third, one directs to the Data_processing directory. This directory contains the code for processing the data up, and including, to the point of creating a bin structure out off a list of filenames. 
 
-Model_preperation contains the code to process the data to a point it is usuable for the model
+4) Fourth, one directs to the Model_preparation directory. This directory contains the code for processing the data to a point it is usable for the model. 
 
-Statistics contains all the code for obtaining information on the distribution of the data-set
+5) Five, One directs to the Siamese_VGG16 directory. This directory contains the code for creating and training the Siamese VGG16 model. 
