@@ -1,9 +1,12 @@
 # Measuring model performance 
 
+# Required libraries
+from utils import * 
+
 # Required modules 
 import numpy as np 
 import tensorflow as tf 
-from tensorflow.keras.metrics import Precision, Recall, Accuracy
+from tensorflow.keras.metrics import Precision, Recall, Accuracy 
 
 
 # Normalizing pixel values of the data, no need for scaling 
@@ -59,7 +62,7 @@ def build_data(Path_Positive_A, Path_Positive_B, Path_Negative_A, Path_Negative_
     # Prefetching for performance 
     dataset = dataset.prefetch(8)
 
-    return dataset, buffer_size
+    return dataset
 
 
 def test_model(path_model, A1, B1, A0, B0):
@@ -78,6 +81,39 @@ def test_model(path_model, A1, B1, A0, B0):
     # Summary of model as confirmation 
     model.summary()
 
-    print('Finished')
+    # Creating metric objects
+    r = Recall()
+    p = Precision()
+    a = Accuracy()
 
+    # Progress bar for testing 
+    progbar = tf.keras.utils.Progbar(len(dataset))
 
+    # Loop through each batch in the dataset 
+    for idx, batch in enumerate(dataset):
+
+        # Prediction with current batch 
+        yhat = model.predict(batch[:2])
+
+        print(yhat)
+        print(batch[2])
+
+        # Update the metrics accordingly 
+        r.update_state(batch[2], yhat)
+        p.update_state(batch[2], yhat) 
+        a.update_state(batch[2], yhat) 
+
+        # Update the progress bar 
+        progbar.update(idx + 1)
+    
+    # Calculate f measure 
+    F = (2 * p.result().numpy() * r.result().numpy()) / (p.result().numpy() + r.result().numpy())
+
+    # Storing the results in a list 
+    test_ls = [r.result().numpy(), p.result().numpy(), a.result().numpy(), F]
+
+    # Printing the metrics values after completing a single epoch     
+    print(test_ls)
+
+    # Saving the scores 
+    np.save('test_results.npy', test_ls)
