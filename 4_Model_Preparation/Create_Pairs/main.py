@@ -6,7 +6,7 @@ from pair import *
 def main():
 
 	# Path to the array 
-	path = '/projects/mdhali/BscProjects/Stephan/Model_data/Paths_15/Training_validating/Training-Validation.npy'
+	path = '/projects/mdhali/BscProjects/Stephan/Paths/Sorted_Paths_Split/Paths_15/Testing/Testing.npy'
 
 	# Creating the pairs
 	create_pairs(path)

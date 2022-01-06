@@ -113,9 +113,9 @@ def create_pairs(path):
     print("Len labels ", len(labels))
 
     # Saving x, y and labels
-    np.save('/projects/mdhali/BscProjects/Stephan/Model_data/Paths_15/Training_validating/Paired/input_x.npy', input_x)
-    np.save('/projects/mdhali/BscProjects/Stephan/Model_data/Paths_15/Training_validating/Paired/input_y.npy', input_y)
-    np.save('/projects/mdhali/BscProjects/Stephan/Model_data/Paths_15/Training_validating/Paired/labels.npy', labels)
+    np.save('/projects/mdhali/BscProjects/Stephan/Paths/Sorted_Paths_Split_Paired/Cutoff_15/Test/Paired/input_x.npy', input_x)
+    np.save('/projects/mdhali/BscProjects/Stephan/Paths/Sorted_Paths_Split_Paired/Cutoff_15/Test/Paired/input_y.npy', input_y)
+    np.save('/projects/mdhali/BscProjects/Stephan/Paths/Sorted_Paths_Split_Paired/Cutoff_15/Test/Paired/labels.npy', labels)
 
 
 
