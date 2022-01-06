@@ -138,7 +138,7 @@ def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_lo
     ls_loss = [] 
 
     # Setting the patience for the early stop
-    patience = 10
+    # patience = 10
 
     # Loop through each epoch
     for epoch in range(1, EPOCHS + 1):
@@ -153,7 +153,7 @@ def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_lo
         # Creating metric objects
         r = Recall()
         p = Precision()
-        
+
         # Loop through each batch in the dataset 
         for idx, batch in enumerate(loaded_dataset):
 
@@ -181,9 +181,9 @@ def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_lo
             checkpoint.save(file_prefix = checkpoint_prefix)
 
         # If model is not improving then break 
-        if len(ls_loss) > patience: 
-            if ls_loss[-1] >= ls_loss[-patience]:
-                break
+        # if len(ls_loss) > patience: 
+        #     if ls_loss[-1] >= ls_loss[-patience]:
+        #         break
 
     # Save weights after having completed training 
     siamese_model.save('VGG16.h5')
@@ -221,7 +221,7 @@ def run_model(A1, B1, A0, B0):
     checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
     checkpoint = tf.train.Checkpoint(opt = opt, siamese_model = siamese_model)
 
-    train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_loss, opt, buffer_size, 100)
+    train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_loss, opt, buffer_size, 30)
 
 
 
