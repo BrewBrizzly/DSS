@@ -192,7 +192,7 @@ def train(siamese_model, training, testing, checkpoint, checkpoint_prefix, binar
         # Creating the metric object for validation
         rv = Recall()
         pv = Precision()
-        av = Accuracy
+        av = Accuracy()
 
         # Loop through each batch in the training set, updating the weights  
         for idx, batch in enumerate(loaded_training):
@@ -214,11 +214,13 @@ def train(siamese_model, training, testing, checkpoint, checkpoint_prefix, binar
             # Update the progress bar 
             progbar.update(idx + 1)
 
+            break
+
         # Printing the metrics values after completing a single epoch of training    
-        print('Training loss: ', loss.numpy(), ' recall: ', rt.result().numpy(), ' precision: ', pt.result().numpy(), ' accuracy: ', at.results.numpy())
+        print('Training loss: ', loss.numpy(), ' recall: ', rt.result().numpy(), ' precision: ', pt.result().numpy(), ' accuracy: ', at.result().numpy())
 
         # Append the training values to array
-        performance_t.append([loss.numpy(), rt.result().numpy(), pt.result().numpy(), at.results.numpy()])
+        performance_t.append([loss.numpy(), rt.result().numpy(), pt.result().numpy(), at.result().numpy()])
 
         print("\n Validating the network")
         progbar = tf.keras.utils.Progbar(len(loaded_validation))
@@ -229,11 +231,11 @@ def train(siamese_model, training, testing, checkpoint, checkpoint_prefix, binar
             # Prediction with current validation batch 
             yhat = siamese_model.predict(batch[:2])
 
-            # Processing the results to either 1 or 0
-            [1 if value > 0.5 else 0 for value in yhat]
-
             # Calculate loss with the label and the predicted outcome 
             loss = binary_cross_loss(batch[2], yhat)
+
+            # Processing the results to either 1 or 0
+            [1 if value > 0.5 else 0 for value in yhat]
 
             # Updating the metrics
             rv.update_state(batch[2], yhat)
@@ -242,12 +244,14 @@ def train(siamese_model, training, testing, checkpoint, checkpoint_prefix, binar
 
             # Update the progress bar 
             progbar.update(idx + 1)
+
+            break
         
         # Printing the metrics values after completing a single epoch of validating    
-        print('Validation loss: ', loss.numpy(), ' recall: ', rv.result().numpy(), ' precision: ', pv.result().numpy(), ' accuracy: ', av.results.numpy())
+        print('Validation loss: ', loss.numpy(), ' recall: ', rv.result().numpy(), ' precision: ', pv.result().numpy(), ' accuracy: ', av.result().numpy())
 
         # Append the training values to array
-        performance_v.append([loss.numpy(), rv.result().numpy(), pv.result().numpy(), av.results.numpy()])
+        performance_v.append([loss.numpy(), rv.result().numpy(), pv.result().numpy(), av.result().numpy()])
 
 
         # Save weights each time 10 epochs have passed
