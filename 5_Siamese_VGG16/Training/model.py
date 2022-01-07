@@ -6,7 +6,7 @@ import os
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.metrics import Precision, Recall
+from tensorflow.keras.metrics import Precision, Recall, Accuracy 
 
 # Function that connects two CNNS via a eucledian distance layer
 # which is connected to a block of dense layers, the output 
@@ -76,16 +76,44 @@ def build_data(Path_Positive_A, Path_Positive_B, Path_Negative_A, Path_Negative_
     # Creating the overall dataset
     dataset = P_pair.concatenate(N_pair)
 
-    # Calculating the buffer size 
-    buffer_size = len(N_a) * 2
+    # Calculating the full dataset size 
+    size_data = len(N_a) * 2
 
-    return dataset, buffer_size
+    # Splitting the data into training and validation 
+    training_size = int(0.8 * size_data) 
+    validation_size = size_data - training_size
+
+    # Creating the train and validation dataset
+    training_set = dataset.take(training_size)
+    validation_set = dataset.skip(training_size)
+
+    # Calculating the full dataset size 
+    size_data = len(N_a) * 2
+
+    return training_set, validation_set, training_size, validation_size
 
 
-# Loading, preprocessing and shuffling the dataset
-def load_dataset(dataset, buffer_size):
+# Loading, preprocessing and shuffling the training dataset
+def load_training(dataset, buffer_size):
 
-    print("The complete size of the dataset is: ", buffer_size)
+    print("The complete size of the training set is: ", buffer_size)
+    dataset = dataset.shuffle(buffer_size = buffer_size)
+
+    # Processing the dataset
+    dataset = dataset.map(process_pairs)
+
+    # Batching the dataset for prefenting bottleneck, size according paper
+    dataset = dataset.batch(16) 
+
+    # Prefetching for performance 
+    dataset = dataset.prefetch(8)
+
+    return dataset
+
+# Loading, preprocessing and shuffling the validation dataset
+def load_validation(dataset, buffer_size):
+
+    print("The complete size of the validation set is: ", buffer_size)
     dataset = dataset.shuffle(buffer_size = buffer_size)
 
     # Processing the dataset
@@ -132,10 +160,16 @@ def train_step(siamese_model, batch, binary_cross_loss, opt):
 
 # From https://github.com/nicknochnack/FaceRecognition/blob/main/Facial%20Verification%20with%20a%20Siamese%20Network%20-%20Final.ipynb
 # Training loop that goes through all the epochs set
-def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_loss, opt, buffer_size, EPOCHS):
+def train(siamese_model, training, testing, checkpoint, checkpoint_prefix, binary_cross_loss, opt, buffer_size_training, buffer_size_validating, EPOCHS):
 
-    # List to keep track of loss over epochs 
-    ls_loss = [] 
+    # List to keep track of performance over training epochs 
+    performance_t = [] 
+
+    # List to keep track of performance over validation epochs 
+    performance_v = [] 
+
+    # Loading validation set
+    loaded_validation = load_validation(testing, buffer_size_validating)
 
     # Setting the patience for the early stop
     # patience = 10
@@ -144,18 +178,24 @@ def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_lo
     for epoch in range(1, EPOCHS + 1):
 
         # Loading, preprocessing and shuffling the dataset
-        loaded_dataset = load_dataset(dataset, buffer_size)
+        loaded_training = load_training(training, buffer_size_training)
 
     	# Printing the current status 
         print('\n Epoch {}/{}'.format(epoch, EPOCHS))
-        progbar = tf.keras.utils.Progbar(len(loaded_dataset))
+        progbar = tf.keras.utils.Progbar(len(loaded_training))
         
-        # Creating metric objects
-        r = Recall()
-        p = Precision()
+        # Creating metric objects for training
+        rt = Recall()
+        pt = Precision()
+        at = Accuracy()
 
-        # Loop through each batch in the dataset 
-        for idx, batch in enumerate(loaded_dataset):
+        # Creating the metric object for validation
+        rv = Recall()
+        pv = Precision()
+        av = Accuracy
+
+        # Loop through each batch in the training set, updating the weights  
+        for idx, batch in enumerate(loaded_training):
 
             # Single training step
             loss = train_step(siamese_model, batch, binary_cross_loss, opt)
@@ -163,18 +203,52 @@ def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_lo
             # Prediction with current batch 
             yhat = siamese_model.predict(batch[:2])
 
+            # Processing the results to either 1 or 0
+            [1 if value > 0.5 else 0 for value in yhat]
+
             # Update the metrics accordingly 
-            r.update_state(batch[2], yhat)
-            p.update_state(batch[2], yhat) 
+            rt.update_state(batch[2], yhat)
+            pt.update_state(batch[2], yhat) 
+            at.update_state(batch[2], yhat) 
 
             # Update the progress bar 
             progbar.update(idx + 1)
 
-        # Printing the metrics values after completing a single epoch     
-        print(loss.numpy(), r.result().numpy(), p.result().numpy())
+        # Printing the metrics values after completing a single epoch of training    
+        print('Training loss: ', loss.numpy(), ' recall: ', rt.result().numpy(), ' precision: ', pt.result().numpy(), ' accuracy: ', at.results.numpy())
 
-        # Append the loss 
-        ls_loss.append(loss.numpy())
+        # Append the training values to array
+        performance_t.append([loss.numpy(), rt.result().numpy(), pt.result().numpy(), at.results.numpy()])
+
+        print("\n Validating the network")
+        progbar = tf.keras.utils.Progbar(len(loaded_validation))
+
+        # Loop through each batch in the validation set  
+        for idx, batch in enumerate(loaded_validation):
+
+            # Prediction with current validation batch 
+            yhat = siamese_model.predict(batch[:2])
+
+            # Processing the results to either 1 or 0
+            [1 if value > 0.5 else 0 for value in yhat]
+
+            # Calculate loss with the label and the predicted outcome 
+            loss = binary_cross_loss(batch[2], yhat)
+
+            # Updating the metrics
+            rv.update_state(batch[2], yhat)
+            pv.update_state(batch[2], yhat) 
+            av.update_state(batch[2], yhat) 
+
+            # Update the progress bar 
+            progbar.update(idx + 1)
+        
+        # Printing the metrics values after completing a single epoch of validating    
+        print('Validation loss: ', loss.numpy(), ' recall: ', rv.result().numpy(), ' precision: ', pv.result().numpy(), ' accuracy: ', av.results.numpy())
+
+        # Append the training values to array
+        performance_v.append([loss.numpy(), rv.result().numpy(), pv.result().numpy(), av.results.numpy()])
+
 
         # Save weights each time 10 epochs have passed
         if epoch % 10 == 0: 
@@ -188,8 +262,9 @@ def train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_lo
     # Save weights after having completed training 
     siamese_model.save('VGG16.h5')
 
-    # Saving the losses 
-    np.save('VGG16_losses.npy', ls_loss)
+    # Saving the performance of training and validation
+    np.save('VGG16_training.npy', performance_t, allow_pickle = True)
+    np.save('VGG16_validation.npy', performance_v, allow_pickle = True)
 
 
 # Builds the data and model to train it 
@@ -200,8 +275,8 @@ def run_model(A1, B1, A0, B0):
     print("Num gpu: ", len(phy_dev))
     tf.config.experimental.set_memory_growth(phy_dev[0], True)
 
-    # Building the dataset
-    dataset, buffer_size = build_data(A1, B1, A0, B0)
+    # Building the training set and the validation set
+    training, testing, buffer_size_training, buffer_size_validating = build_data(A1, B1, A0, B0)
 
     # Building the model with the dimensions according the dataset
     siamese_model = build_Siamese_network()
@@ -221,7 +296,7 @@ def run_model(A1, B1, A0, B0):
     checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
     checkpoint = tf.train.Checkpoint(opt = opt, siamese_model = siamese_model)
 
-    train(siamese_model, dataset, checkpoint, checkpoint_prefix, binary_cross_loss, opt, buffer_size, 30)
+    train(siamese_model, training, testing, checkpoint, checkpoint_prefix, binary_cross_loss, opt, buffer_size_training, buffer_size_validating, 30)
 
 
 
