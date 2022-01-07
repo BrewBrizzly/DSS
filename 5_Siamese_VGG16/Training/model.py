@@ -214,8 +214,6 @@ def train(siamese_model, training, testing, checkpoint, checkpoint_prefix, binar
             # Update the progress bar 
             progbar.update(idx + 1)
 
-            break
-
         # Printing the metrics values after completing a single epoch of training    
         print('Training loss: ', loss.numpy(), ' recall: ', rt.result().numpy(), ' precision: ', pt.result().numpy(), ' accuracy: ', at.result().numpy())
 
@@ -244,8 +242,6 @@ def train(siamese_model, training, testing, checkpoint, checkpoint_prefix, binar
 
             # Update the progress bar 
             progbar.update(idx + 1)
-
-            break
         
         # Printing the metrics values after completing a single epoch of validating    
         print('Validation loss: ', loss.numpy(), ' recall: ', rv.result().numpy(), ' precision: ', pv.result().numpy(), ' accuracy: ', av.result().numpy())
