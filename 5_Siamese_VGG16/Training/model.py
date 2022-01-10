@@ -79,6 +79,9 @@ def build_data(Path_Positive_A, Path_Positive_B, Path_Negative_A, Path_Negative_
     # Calculating the full dataset size 
     size_data = len(N_a) * 2
 
+    # Shuffling the complete dataset 
+    dataset = dataset.shuffle(buffer_size = size_data)
+
     # Splitting the data into training and validation 
     training_size = int(0.8 * size_data) 
     validation_size = size_data - training_size
@@ -86,9 +89,6 @@ def build_data(Path_Positive_A, Path_Positive_B, Path_Negative_A, Path_Negative_
     # Creating the train and validation dataset
     training_set = dataset.take(training_size)
     validation_set = dataset.skip(training_size)
-
-    # Calculating the full dataset size 
-    size_data = len(N_a) * 2
 
     return training_set, validation_set, training_size, validation_size
 
@@ -272,7 +272,6 @@ def run_model(A1, B1, A0, B0):
 
     # Settings for GPU, and a check if the gpu was detected 
     phy_dev = tf.config.experimental.list_physical_devices('GPU')
-    print("Num gpu: ", len(phy_dev))
     tf.config.experimental.set_memory_growth(phy_dev[0], True)
 
     # Building the training set and the validation set
