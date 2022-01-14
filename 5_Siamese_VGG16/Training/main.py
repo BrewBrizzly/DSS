@@ -7,7 +7,7 @@ from model import *
 
 def main():
 
-    # Paths to postive pairs and negative pairs
+    # Paths to direcoties postive pairs and negative pairs
     Path_Positive_A = '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training/Positive/A/*.jpg'
     Path_Positive_B = '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training/Positive/B/*.jpg'
 

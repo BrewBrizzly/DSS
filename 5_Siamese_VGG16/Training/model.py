@@ -32,7 +32,7 @@ def build_Siamese_network():
     outputs = keras.layers.Dense(1, activation="sigmoid", name = 'block6_dense3')(x)
 
     # building the complete model 
-    model = Model(inputs=[Input_Image_A, Input_Image_B], outputs=outputs, name = 'Siame_Network')	
+    model = Model(inputs=[Input_Image_A, Input_Image_B], outputs=outputs, name = 'Siamese_Network')	
 
     return model
 
@@ -272,10 +272,14 @@ def run_model(A1, B1, A0, B0):
 
     # Settings for GPU, and a check if the gpu was detected 
     phy_dev = tf.config.experimental.list_physical_devices('GPU')
-    tf.config.experimental.set_memory_growth(phy_dev[0], True)
+    
+    print("Amount of GPU's: ", len(phy_dev))
+    
+    for gpu in phy_dev:
+        tf.config.experimental.set_memory_growth(gpu, True)
 
     # Building the training set and the validation set
-    training, testing, buffer_size_training, buffer_size_validating = build_data(A1, B1, A0, B0)
+    training, validation, buffer_size_training, buffer_size_validating = build_data(A1, B1, A0, B0)
 
     # Building the model with the dimensions according the dataset
     siamese_model = build_Siamese_network()
@@ -295,7 +299,7 @@ def run_model(A1, B1, A0, B0):
     checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
     checkpoint = tf.train.Checkpoint(opt = opt, siamese_model = siamese_model)
 
-    train(siamese_model, training, testing, checkpoint, checkpoint_prefix, binary_cross_loss, opt, buffer_size_training, buffer_size_validating, 100)
+    train(siamese_model, validation, testing, checkpoint, checkpoint_prefix, binary_cross_loss, opt, buffer_size_training, buffer_size_validating, 100)
 
 
 
