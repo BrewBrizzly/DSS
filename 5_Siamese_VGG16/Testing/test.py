@@ -96,7 +96,7 @@ def test_model(path_model, A1, B1, A0, B0):
         yhat = model.predict(batch[:2])
 
         # Processing the results to either 1 or 0
-        [1 if value > 0.5 else 0 for value in yhat]
+        yhat = [1 if value > 0.5 else 0 for value in yhat]
 
         # Update the metrics accordingly 
         r.update_state(batch[2], yhat)
