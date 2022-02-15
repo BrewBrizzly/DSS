@@ -6,4 +6,4 @@
 
 4) Fourth, one directs to the Model_preparation directory. This directory contains the code for processing the data to a point it is usable for the model. 
 
-5) Five, One directs to the Siamese_VGG16 directory. This directory contains the code for creating and training the Siamese VGG16 model. 
+5) Five, One directs to the Siamese_VGG16 directory. This directory contains the code for creating, training and testing the Siamese VGG16 model. 
