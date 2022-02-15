@@ -32,7 +32,7 @@ def bin_Q(Path_Q, Path_P, Path_SP):
     # Read the array containing the sorted test paths of patches 
     arr = np.load(Path_SP, allow_pickle = True)
 
-    # Obtain all the patches fragments present in both structs 
+    # Obtain only plates, and therefore fragments, that exist in both structs 
     ls_fragments = filter_fragments(arr, ls_plate)
 
     # A list containing the Q number for each fragment instance in ls_fragments 
@@ -42,7 +42,7 @@ def bin_Q(Path_Q, Path_P, Path_SP):
     ls_frag_bin = bin(ls_fragments, ls_Q)
 
     # Creating a plot of the frequency of the amount fragments per Q-number
-    # plot_Q(ls_frag_bin)
+    plot_Q(ls_frag_bin)
 
     # Creating pairs 
     input_x, input_y, labels = create_pairs(ls_frag_bin)
@@ -59,12 +59,16 @@ def filter_fragments(arr, ls_plate):
     # list for filtered fragments 
     ls_fragments = []
 
+    # For bin array
     for bn in arr:
+
+    	# For fragment in bin
         for frag in bn:
+
+        	# For path in fragment 
             for path in frag:
 
-                # Temporary list to function as a bin 
-
+            	# Splitting the string to get the plate of the patch 
                 string = path  
 
                 string = string.rsplit('/', 1)[1]
@@ -73,6 +77,7 @@ def filter_fragments(arr, ls_plate):
                 if 'P' in string:
                     string = string.split('P')[1]
 
+                # If plate in both structs, append to list 
                 if string in ls_plate:
                     ls_fragments.append(frag)
                     break 
@@ -85,11 +90,13 @@ def filter_Q(ls_frag, ls):
 
     ls_Q = []
 
+    # For fragment in list 
     for frag in ls_frag:
+
+    	# For path in fragment 
         for path in frag:
 
-            # Temporary list to function as a bin 
-
+        	# Splitting the string to get the plate of the patch, and therefore fragment  
             string = path  
 
             string = string.rsplit('/', 1)[1]
@@ -98,15 +105,20 @@ def filter_Q(ls_frag, ls):
             if 'P' in string:
                 string = string.split('P')[1]
 
+            # For pair of plate and q-number in list 
             for pair in ls:
+
+            	# If plate in pair 
                 if string in pair:
+
+                	# Append the Q-number to the list 
                     ls_Q.append(pair[1])
             break 
 
     return ls_Q
 
 
-# Creates one list containing the fragments that belong together
+# Creates a list of lists containing the fragments that belong together according to the Q-number
 def bin(ls_frag, ls_q):
 
     # Creating a list to store all fragment that belong to the same bin 
@@ -115,12 +127,16 @@ def bin(ls_frag, ls_q):
     # Creating a list of all unique Q numbers
     set_q = set(ls_q)
 
+    # For each unique Q-number
     for unq_q in set_q:
 
+    	# Temporary list to store all fragment with the same Q-number
         tmp_bin = []
 
+        # Loop through the fragments and their q-numbers
         for fragment, q_number in zip(ls_frag, ls_q):
             
+            # When a bin is found 
             if unq_q == q_number:
 
                 tmp_bin.append(fragment)
@@ -166,7 +182,7 @@ def plot_Q(ls_frag_bin):
 # Creating the positive and negative pairs for testing on Q-numbers 
 def create_pairs(ls_frag_bin):
 
-    # array to store only q-number bins with len more than 1        
+    # array to store only q-number bins with length more than 1        
     tmp = []
     
     # Removing all the Q-number bins that contain only one fragment
@@ -199,13 +215,13 @@ def create_pos(ls):
     pos_a = []
     pos_b = [] 
 
-    # For q number in lsit 
+    # For qnumber bin in list 
     for q in ls:
 
-        # Base fragment 
+        # Base fragment of a qnumber bin 
         frag1 = q[0]
 
-        # Fragments to pair the base with 
+        # Fragments to pair the base fragment with in the current bin  
         for idx in range(len(q) - 1):
             idx += 1
             frag2 = q[idx]
@@ -214,7 +230,7 @@ def create_pos(ls):
             pos_a.append(random.choice(frag1))
             pos_b.append(random.choice(frag2))
 
-    # Creating a list of positive labels 
+    # Creating a list of  positivelabels 
     pos_lbl = np.ones(len(pos_a))
 
     return pos_a, pos_b, pos_lbl.tolist()
@@ -238,7 +254,7 @@ def create_neg(ls, max_len):
         j = end
 
         # While item i is equal to item j or 
-        # length even is equal to length odd
+        # length positive pair is equal to negative pair 
         while(int(i) != int(j)) and (len(neg_a) != max_len) and i < j:
 
             # Grabbing the q bins from left and right 
