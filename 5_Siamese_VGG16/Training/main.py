@@ -7,12 +7,12 @@ from model import *
 
 def main():
 
-    # Paths to direcoties postive pairs and negative pairs
-    Path_Positive_A = '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training/Positive/A/*.jpg'
-    Path_Positive_B = '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training/Positive/B/*.jpg'
+    # Paths to postive pairs and negative pairs
+    Path_Positive_A = '/data/p301438/Data/Training/Positive/A/*.jpg'
+    Path_Positive_B = '/data/p301438/Data/Training/Positive/B/*.jpg'
 
-    Path_Negative_A = '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training/Negative/A/*.jpg'
-    Path_Negative_B = '/projects/mdhali/BscProjects/Stephan/Model-Data/Cutoff_15/Training/Negative/B/*.jpg'
+    Path_Negative_A = '/data/p301438/Data/Training/Negative/A/*.jpg'
+    Path_Negative_B = '/data/p301438/Data/Training/Negative/B/*.jpg'
     
     # Processing the data, creating and training the model with the data
     run_model(Path_Positive_A, Path_Positive_B, Path_Negative_A, Path_Negative_B)

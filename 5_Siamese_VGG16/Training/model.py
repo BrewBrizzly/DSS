@@ -6,6 +6,7 @@ import os
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
+from tensorflow.keras.layers import LeakyReLU
 from tensorflow.keras.metrics import Precision, Recall, Accuracy 
 
 # Function that connects two CNNS via a eucledian distance layer
@@ -27,12 +28,12 @@ def build_Siamese_network():
     distance = keras.layers.Lambda(euclidean_distance)([VGG16_A, VGG16_B])
 
     # Creating the final dense layers 
-    x = keras.layers.Dense(512, activation="relu", name = 'block6_dense1')(distance)
-    x = keras.layers.Dense(512, activation="relu", name = 'block6_dense2')(x)
+    x = keras.layers.Dense(512, activation = LeakyReLU(alpha=0.1), name = 'block6_dense1')(distance)
+    x = keras.layers.Dense(512, activation = LeakyReLU(alpha=0.1), name = 'block6_dense2')(x)
     outputs = keras.layers.Dense(1, activation="sigmoid", name = 'block6_dense3')(x)
 
     # building the complete model 
-    model = Model(inputs=[Input_Image_A, Input_Image_B], outputs=outputs, name = 'Siamese_Network')	
+    model = Model(inputs=[Input_Image_A, Input_Image_B], outputs=outputs, name = 'Siamese_Network')   
 
     return model
 
@@ -62,7 +63,7 @@ def build_data(Path_Positive_A, Path_Positive_B, Path_Negative_A, Path_Negative_
     # Getting the filenames for the positive pair, in same order by setting the seed 
     P_a = tf.data.Dataset.list_files(Path_Positive_A, shuffle = True, seed = 24)
     P_b = tf.data.Dataset.list_files(Path_Positive_B, shuffle = True, seed = 24)
-
+            
     # Getting the filenames for the negative pair, in same order by setting the seed 
     N_a = tf.data.Dataset.list_files(Path_Negative_A, shuffle = True, seed = 24)
     N_b = tf.data.Dataset.list_files(Path_Negative_B, shuffle = True, seed = 24)
@@ -128,10 +129,10 @@ def load_validation(dataset, buffer_size):
     return dataset
 
 
-# From https://github.com/nicknochnack/FaceRecognition/blob/main/Facial%20Verification%20with%20a%20Siamese%20Network%20-%20Final.ipynb
+# From https://github.com/nicknochnack/FaceRecognition/blob/main/Facial+Verification+with+a+Siamese+Network+-+Final.ipynb
 # Performs one training step of the model during an epoch 
 @tf.function
-def train_step(siamese_model, batch, binary_cross_loss, opt):
+def train_step(batch, binary_cross_loss, opt):
     
     # Record all of our operations 
     with tf.GradientTape() as tape:    
@@ -158,9 +159,9 @@ def train_step(siamese_model, batch, binary_cross_loss, opt):
     return loss
 
 
-# From https://github.com/nicknochnack/FaceRecognition/blob/main/Facial%20Verification%20with%20a%20Siamese%20Network%20-%20Final.ipynb
+# From https://github.com/nicknochnack/FaceRecognition/blob/main/Facial+Verification+with+a+Siamese+Network+-+Final.ipynb
 # Training loop that goes through all the epochs set
-def train(siamese_model, training, testing, checkpoint, checkpoint_prefix, binary_cross_loss, opt, buffer_size_training, buffer_size_validating, EPOCHS):
+def train(training, testing, checkpoint, checkpoint_prefix, binary_cross_loss, opt, buffer_size_training, buffer_size_validating, EPOCHS):
 
     # List to keep track of performance over training epochs 
     performance_t = [] 
@@ -171,16 +172,13 @@ def train(siamese_model, training, testing, checkpoint, checkpoint_prefix, binar
     # Loading validation set
     loaded_validation = load_validation(testing, buffer_size_validating)
 
-    # Setting the patience for the early stop
-    # patience = 10
-
     # Loop through each epoch
     for epoch in range(1, EPOCHS + 1):
 
         # Loading, preprocessing and shuffling the dataset
         loaded_training = load_training(training, buffer_size_training)
 
-    	# Printing the current status 
+        # Printing the current status 
         print('\n Epoch {}/{}'.format(epoch, EPOCHS))
         progbar = tf.keras.utils.Progbar(len(loaded_training))
         
@@ -198,13 +196,13 @@ def train(siamese_model, training, testing, checkpoint, checkpoint_prefix, binar
         for idx, batch in enumerate(loaded_training):
 
             # Single training step
-            loss = train_step(siamese_model, batch, binary_cross_loss, opt)
+            loss = train_step(batch, binary_cross_loss, opt)
 
             # Prediction with current batch 
             yhat = siamese_model.predict(batch[:2])
 
             # Processing the results to either 1 or 0
-            [1 if value > 0.5 else 0 for value in yhat]
+            yhat = [1 if value > 0.5 else 0 for value in yhat]
 
             # Update the metrics accordingly 
             rt.update_state(batch[2], yhat)
@@ -233,7 +231,7 @@ def train(siamese_model, training, testing, checkpoint, checkpoint_prefix, binar
             loss = binary_cross_loss(batch[2], yhat)
 
             # Processing the results to either 1 or 0
-            [1 if value > 0.5 else 0 for value in yhat]
+            yhat = [1 if value > 0.5 else 0 for value in yhat]
 
             # Updating the metrics
             rv.update_state(batch[2], yhat)
@@ -249,22 +247,16 @@ def train(siamese_model, training, testing, checkpoint, checkpoint_prefix, binar
         # Append the training values to array
         performance_v.append([loss.numpy(), rv.result().numpy(), pv.result().numpy(), av.result().numpy()])
 
-
         # Save weights each time 10 epochs have passed
         if epoch % 5 == 0: 
             checkpoint.save(file_prefix = checkpoint_prefix)
 
-        # If model is not improving then break 
-        # if len(ls_loss) > patience: 
-        #     if ls_loss[-1] >= ls_loss[-patience]:
-        #         break
-
     # Save weights after having completed training 
-    siamese_model.save('VGG16.h5')
+    siamese_model.save('/data/p301438/Model/100epochs/VGG16.h5')
 
     # Saving the performance of training and validation
-    np.save('VGG16_training.npy', performance_t, allow_pickle = True)
-    np.save('VGG16_validation.npy', performance_v, allow_pickle = True)
+    np.save('/data/p301438/Model/100epochs/VGG16_training.npy', performance_t, allow_pickle = True)
+    np.save('/data/p301438/Model/100epochs/VGG16_validation.npy', performance_v, allow_pickle = True)
 
 
 # Builds the data and model to train it 
@@ -279,15 +271,17 @@ def run_model(A1, B1, A0, B0):
         tf.config.experimental.set_memory_growth(gpu, True)
 
     # Building the training set and the validation set
-    training, validation, buffer_size_training, buffer_size_validating = build_data(A1, B1, A0, B0)
+    training, testing, buffer_size_training, buffer_size_validating = build_data(A1, B1, A0, B0)
 
     # Building the model with the dimensions according the dataset
+    global siamese_model
     siamese_model = build_Siamese_network()
+    # siamese_model = tf.keras.models.load_model('/data/p301438/Model/100epochs/VGG16.h5')
 
     # Summary of the model as confirmation
     siamese_model.summary()
 
-    # Below comes from: https://github.com/nicknochnack/FaceRecognition/blob/main/Facial%20Verification%20with%20a%20Siamese%20Network%20-%20Final.ipynb
+    # Below comes from: https://github.com/nicknochnack/FaceRecognition/blob/main/Facial+Verification+with+a+Siamese+Network+-+Final.ipynb
 
     # Initializing the loss function
     binary_cross_loss = tf.losses.BinaryCrossentropy()
@@ -295,16 +289,8 @@ def run_model(A1, B1, A0, B0):
     # Initializing the model's optimizer according to the value found in the paper 
     opt = tf.keras.optimizers.Adam(0.0001) 
 
-    checkpoint_dir = './training_checkpoints'
+    checkpoint_dir = '/data/p301438/Model/100epochs/'
     checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
     checkpoint = tf.train.Checkpoint(opt = opt, siamese_model = siamese_model)
 
-    train(siamese_model, validation, testing, checkpoint, checkpoint_prefix, binary_cross_loss, opt, buffer_size_training, buffer_size_validating, 100)
-
-
-
-
-
-
-
-
+    train(training, testing, checkpoint, checkpoint_prefix, binary_cross_loss, opt, buffer_size_training, buffer_size_validating, 100)
