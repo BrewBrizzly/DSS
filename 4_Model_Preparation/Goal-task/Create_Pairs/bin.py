@@ -172,8 +172,11 @@ def plot_Q(ls_frag_bin):
                 cnt += 1
         y.append(cnt)
 
-    fig = plt.figure()
-    plt.bar(str_x, y, edgecolor='black', linewidth=1.0)
+    # Creating the figure and axis 
+    fig, axs = plt.subplots(1, 1)
+    axs.bar(str_x, y, edgecolor='black', linewidth=1.0)
+    axs.set_xlabel('Total number of fragments per Q-number')
+    axs.set_ylabel('Frequency')
 
     plt.savefig('q_dist.png')
     plt.close()
