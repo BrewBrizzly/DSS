@@ -1,1 +1,0 @@
-Run main.py to obtain a trained Siamese VGG16 model on the DSS dataset. 

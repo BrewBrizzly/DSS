@@ -252,11 +252,11 @@ def train(training, testing, checkpoint, checkpoint_prefix, binary_cross_loss, o
             checkpoint.save(file_prefix = checkpoint_prefix)
 
     # Save weights after having completed training 
-    siamese_model.save('/data/p301438/Model/100epochs/VGG16.h5')
+    siamese_model.save('/data/p301438/Model/Models_opt/100epochs_lky_lr/VGG16.h5')
 
     # Saving the performance of training and validation
-    np.save('/data/p301438/Model/100epochs/VGG16_training.npy', performance_t, allow_pickle = True)
-    np.save('/data/p301438/Model/100epochs/VGG16_validation.npy', performance_v, allow_pickle = True)
+    np.save('/data/p301438/Model/Models_opt/100epochs_lky_lr/VGG16_training.npy', performance_t, allow_pickle = True)
+    np.save('/data/p301438/Model/Models_opt/100epochs_lky_lr/VGG16_validation.npy', performance_v, allow_pickle = True)
 
 
 # Builds the data and model to train it 
@@ -276,7 +276,6 @@ def run_model(A1, B1, A0, B0):
     # Building the model with the dimensions according the dataset
     global siamese_model
     siamese_model = build_Siamese_network()
-    # siamese_model = tf.keras.models.load_model('/data/p301438/Model/100epochs/VGG16.h5')
 
     # Summary of the model as confirmation
     siamese_model.summary()
@@ -287,9 +286,9 @@ def run_model(A1, B1, A0, B0):
     binary_cross_loss = tf.losses.BinaryCrossentropy()
 
     # Initializing the model's optimizer according to the value found in the paper 
-    opt = tf.keras.optimizers.Adam(0.0001) 
+    opt = tf.keras.optimizers.Adam(0.00001) 
 
-    checkpoint_dir = '/data/p301438/Model/100epochs/'
+    checkpoint_dir = '/data/p301438/Model/Models_opt/100epochs_lky_lr/'
     checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
     checkpoint = tf.train.Checkpoint(opt = opt, siamese_model = siamese_model)
 

@@ -8,11 +8,11 @@ from model import *
 def main():
 
     # Paths to postive pairs and negative pairs
-    Path_Positive_A = '/data/p301438/Data/Training/Positive/A/*.jpg'
-    Path_Positive_B = '/data/p301438/Data/Training/Positive/B/*.jpg'
+    Path_Positive_A = '/data/p301438/Data/Training_opt/Positive/A/*.jpg'
+    Path_Positive_B = '/data/p301438/Data/Training_opt/Positive/B/*.jpg'
 
-    Path_Negative_A = '/data/p301438/Data/Training/Negative/A/*.jpg'
-    Path_Negative_B = '/data/p301438/Data/Training/Negative/B/*.jpg'
+    Path_Negative_A = '/data/p301438/Data/Training_opt/Negative/A/*.jpg'
+    Path_Negative_B = '/data/p301438/Data/Training_opt/Negative/B/*.jpg'
     
     # Processing the data, creating and training the model with the data
     run_model(Path_Positive_A, Path_Positive_B, Path_Negative_A, Path_Negative_B)

@@ -4,6 +4,9 @@ import csv
 import matplotlib.pyplot as plt
 import random 
 
+# Required lib
+from most_representative import *
+
 
 # First filter and then bin the fragment patches on Q-number 
 def bin_Q(Path_Q, Path_P, Path_SP):
@@ -62,13 +65,13 @@ def filter_fragments(arr, ls_plate):
     # For bin array
     for bn in arr:
 
-    	# For fragment in bin
+        # For fragment in bin
         for frag in bn:
 
-        	# For path in fragment 
+            # For path in fragment 
             for path in frag:
 
-            	# Splitting the string to get the plate of the patch 
+                # Splitting the string to get the plate of the patch 
                 string = path  
 
                 string = string.rsplit('/', 1)[1]
@@ -93,10 +96,10 @@ def filter_Q(ls_frag, ls):
     # For fragment in list 
     for frag in ls_frag:
 
-    	# For path in fragment 
+        # For path in fragment 
         for path in frag:
 
-        	# Splitting the string to get the plate of the patch, and therefore fragment  
+            # Splitting the string to get the plate of the patch, and therefore fragment  
             string = path  
 
             string = string.rsplit('/', 1)[1]
@@ -108,10 +111,10 @@ def filter_Q(ls_frag, ls):
             # For pair of plate and q-number in list 
             for pair in ls:
 
-            	# If plate in pair 
+                # If plate in pair 
                 if string in pair:
 
-                	# Append the Q-number to the list 
+                    # Append the Q-number to the list 
                     ls_Q.append(pair[1])
             break 
 
@@ -130,7 +133,7 @@ def bin(ls_frag, ls_q):
     # For each unique Q-number
     for unq_q in set_q:
 
-    	# Temporary list to store all fragment with the same Q-number
+        # Temporary list to store all fragment with the same Q-number
         tmp_bin = []
 
         # Loop through the fragments and their q-numbers
@@ -172,11 +175,8 @@ def plot_Q(ls_frag_bin):
                 cnt += 1
         y.append(cnt)
 
-    # Creating the figure and axis 
-    fig, axs = plt.subplots(1, 1)
-    axs.bar(str_x, y, edgecolor='black', linewidth=1.0)
-    axs.set_xlabel('Total number of fragments per Q-number')
-    axs.set_ylabel('Frequency')
+    fig = plt.figure()
+    plt.bar(str_x, y, edgecolor='black', linewidth=1.0)
 
     plt.savefig('q_dist.png')
     plt.close()
@@ -191,22 +191,39 @@ def create_pairs(ls_frag_bin):
     # Removing all the Q-number bins that contain only one fragment
     for q_bn in ls_frag_bin:
         if len(q_bn) != 1:
-            tmp.append(q_bn)         
+            tmp.append(q_bn)  
+
+    # Determining the most representative patch for each fragment
+    final = []
+    for qbin in tmp:
+        qbinf = []
+        for fragment in qbin:
+            repr_patch = det_represent(fragment) 
+            qbinf.append(repr_patch)  
+        final.append(qbinf)
+        qbinf = []
 
     # Create positive pairs 
     pos_a = []
     pos_b = []
-    pos_a, pos_b, pos_lbl = create_pos(tmp)
+    pos_a, pos_b, pos_lbl = create_pos(final)
+    print(len(pos_a))
+    print(len(pos_b))
 
     # Creating negative pairs
     neg_a = []
     neg_b = []
-    neg_a, neg_b, neg_lbl = create_neg(tmp, len(pos_a))
+    neg_a, neg_b, neg_lbl = create_neg(final, len(pos_a))
+    print(len(neg_a))
+    print(len(neg_b))
 
     # Concat both lists 
     input_a = pos_a + neg_a 
+    print(len(input_a))
     input_b = pos_b + neg_b
+    print(len(input_b))
     labels = pos_lbl + neg_lbl
+    print(len(labels))
 
     return input_a, input_b, labels
 
@@ -219,19 +236,19 @@ def create_pos(ls):
     pos_b = [] 
 
     # For qnumber bin in list 
-    for q in ls:
-
+    for qbin in ls:
         # Base fragment of a qnumber bin 
-        frag1 = q[0]
+        frag1 = qbin[0]
 
         # Fragments to pair the base fragment with in the current bin  
-        for idx in range(len(q) - 1):
-            idx += 1
-            frag2 = q[idx]
+        idx = 1 
+        while(idx < len(qbin)):
+            frag2 = qbin[idx]
 
             # Take a random patch from each fragment to create a pair 
-            pos_a.append(random.choice(frag1))
-            pos_b.append(random.choice(frag2))
+            pos_a.append(frag1)
+            pos_b.append(frag2)
+            idx += 1 
 
     # Creating a list of  positivelabels 
     pos_lbl = np.ones(len(pos_a))
@@ -250,7 +267,7 @@ def create_neg(ls, max_len):
     end = len(ls) - 1
 
     # While we have not reached the length of the positive pairs or the list is exhausted in terms of pairing 
-    while(len(neg_a) != max_len) and begin != end:
+    while(len(neg_a) != max_len) and begin < end:
 
         # i begins from the left and j from the right of the list 
         i = begin
@@ -258,19 +275,21 @@ def create_neg(ls, max_len):
 
         # While item i is equal to item j or 
         # length positive pair is equal to negative pair 
-        while(int(i) != int(j)) and (len(neg_a) != max_len) and i < j:
+        while(int(i) != int(j)) and (len(neg_a) <= max_len) and i < j:
 
             # Grabbing the q bins from left and right 
             q_bin1 = ls[i]
             q_bin2 = ls[j]
 
-            # Grabbing a random fragment from a bot left and right q bin 
-            frag1 = random.choice(q_bin1)
-            frag2 = random.choice(q_bin1)
+            # Make each combination possible with q_bins
+            for fragment1 in q_bin1:
+                for fragment2 in q_bin2:
 
-            # Grabbing a random patch from each fragment for pairing 
-            neg_a.append(random.choice(frag1))
-            neg_b.append(random.choice(frag2))
+                    # Grabbing a random patch from each fragment for pairing 
+                    neg_a.append(fragment1)
+                    neg_b.append(fragment2)
+
+            # Updating the current q position
             i += 1 
             j -= 1 
 

@@ -1,4 +1,4 @@
-# Filter and bin belonging fragment on basis of Q-numbers
+# Alter the labels 
 
 # Required lib 
 from bin import * 
@@ -6,18 +6,16 @@ from bin import *
 def main():
 
 	# Path to sorted csv of plate numbers
-	Path_Q = '/Users/stephannijdam/Desktop/DSS/4_Model_Preparation/Goal-task/Q_Number_csv/Q-numbers.csv'
+	Path_Q = 'Q-numbers.csv'
 
 	# Path to sorted csv of Q-numbers
-	Path_P = '/Users/stephannijdam/Desktop/DSS/4_Model_Preparation/Goal-task/Q_Number_csv/Plate.csv'
+	Path_P = 'Plate.csv'
 
 	# Path to sorted and splitted testing data 
-	Path_SP = '/Users/stephannijdam/Desktop/DSS/4_Model_Preparation/Goal-task/Testing_Data_Paths/Testing.npy'	
+	Path_SP = 'Testing.npy'	
 
 	# Filter and bin the belonging fragment patches into one array 
 	bin_Q(Path_Q, Path_P, Path_SP)
-
-
 
 
 if __name__ == '__main__':

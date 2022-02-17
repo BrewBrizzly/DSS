@@ -1,13 +1,43 @@
 # Measuring model performance 
 
 # Required libraries
+# from VGG16 import *
 from utils import * 
 
 # Required modules 
 import numpy as np 
 import tensorflow as tf 
+from tensorflow import keras
+from tensorflow.keras.layers import LeakyReLU
 from tensorflow.keras.metrics import Precision, Recall, Accuracy 
 
+# Function that connects two CNNS via a eucledian distance layer
+# which is connected to a block of dense layers, the output 
+def build_Siamese_network():
+
+    # Configuring the two input layers 
+    Input_Image_A = Input(name = 'Image_A', shape = (256, 256, 3))
+    Input_Image_B = Input(name = 'Image_B', shape = (256, 256, 3))
+
+    # Defining the VGG16 
+    VGG16 = build_VGG16_network()
+
+    # Connecting input layer to a VGG16
+    VGG16_A = VGG16(Input_Image_A)
+    VGG16_B = VGG16(Input_Image_B)
+
+    # Connecting each VGG16 to the lambda euclidian distance layer 
+    distance = keras.layers.Lambda(euclidean_distance)([VGG16_A, VGG16_B])
+
+    # Creating the final dense layers 
+    x = keras.layers.Dense(512, activation = LeakyReLU(alpha=0.1), name = 'block6_dense1')(distance)
+    x = keras.layers.Dense(512, activation = LeakyReLU(alpha=0.1), name = 'block6_dense2')(x)
+    outputs = keras.layers.Dense(1, activation="sigmoid", name = 'block6_dense3')(x)
+
+    # building the complete model 
+    model = Model(inputs=[Input_Image_A, Input_Image_B], outputs=outputs, name = 'Siamese_Network')   
+
+    return model
 
 # Normalizing pixel values of the data, no need for scaling 
 def preprocess_img(path):
@@ -67,16 +97,21 @@ def build_data(Path_Positive_A, Path_Positive_B, Path_Negative_A, Path_Negative_
 
 def test_model(path_model, A1, B1, A0, B0):
 
-    # Settings for GPU, and a check if the gpu was detected 
+   # Settings for GPU, and a check if the gpu was detected 
     phy_dev = tf.config.experimental.list_physical_devices('GPU')
-    print("Num gpu: ", len(phy_dev))
-    tf.config.experimental.set_memory_growth(phy_dev[0], True)
+    
+    print("Amount of GPU's: ", len(phy_dev))
+    
+    for gpu in phy_dev:
+        tf.config.experimental.set_memory_growth(gpu, True)
 
     # Creating the testing dataset
     dataset = build_data(A1, B1, A0, B0)
 
     # Loading the trained model 
     model = tf.keras.models.load_model(path_model)
+    # model = build_Siamese_network()
+    # model.load_weights(checkpoint_filepath)
 
     # Summary of model as confirmation 
     model.summary()
